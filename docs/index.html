@@ -44,27 +44,30 @@
         }
         .report-item {
             margin-bottom: 20px;
+        }
+        .report-link {
+            display: block;
             padding: 20px;
             background-color: #2a2a2a;
             border-radius: 6px;
             border: 1px solid #3a3a3a;
             transition: all 0.2s;
+            text-decoration: none;
+            cursor: pointer;
         }
-        .report-item:hover {
+        .report-link:hover {
             background-color: #303030;
             border-color: #4CAF50;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         }
-        .report-link {
+        .report-title {
             color: #4CAF50;
-            text-decoration: none;
             font-size: 20px;
             font-weight: 600;
-            display: block;
             margin-bottom: 8px;
         }
-        .report-link:hover {
+        .report-link:hover .report-title {
             color: #66BB6A;
         }
         .report-meta {
@@ -100,52 +103,52 @@
         <ul class="reports-list">
             <li class="report-item">
                 <a href="research_ccs25.html" class="report-link">
-                    CCS 2025
+                    <div class="report-title">CCS 2025</div>
+                    <div class="report-meta">
+                        <span class="conference-tag">Security</span>
+                        ACM Conference on Computer and Communications Security
+                    </div>
                 </a>
-                <div class="report-meta">
-                    <span class="conference-tag">Security</span>
-                    ACM Conference on Computer and Communications Security
-                </div>
             </li>
 
             <li class="report-item">
                 <a href="research_dimva25.html" class="report-link">
-                    DIMVA 2025
+                    <div class="report-title">DIMVA 2025</div>
+                    <div class="report-meta">
+                        <span class="conference-tag">Malware</span>
+                        Detection of Intrusions and Malware & Vulnerability Assessment
+                    </div>
                 </a>
-                <div class="report-meta">
-                    <span class="conference-tag">Malware</span>
-                    Detection of Intrusions and Malware & Vulnerability Assessment
-                </div>
             </li>
 
             <li class="report-item">
                 <a href="research_eurosec25.html" class="report-link">
-                    EuroSec 2025
+                    <div class="report-title">EuroSec 2025</div>
+                    <div class="report-meta">
+                        <span class="conference-tag">Security</span>
+                        European Workshop on Systems Security
+                    </div>
                 </a>
-                <div class="report-meta">
-                    <span class="conference-tag">Security</span>
-                    European Workshop on Systems Security
-                </div>
             </li>
 
             <li class="report-item">
                 <a href="research_usenix24.html" class="report-link">
-                    USENIX Security 2024
+                    <div class="report-title">USENIX Security 2024</div>
+                    <div class="report-meta">
+                        <span class="conference-tag">Security</span>
+                        USENIX Security Symposium
+                    </div>
                 </a>
-                <div class="report-meta">
-                    <span class="conference-tag">Security</span>
-                    USENIX Security Symposium
-                </div>
             </li>
 
             <li class="report-item">
                 <a href="research_usenix25.html" class="report-link">
-                    USENIX Security 2025
+                    <div class="report-title">USENIX Security 2025</div>
+                    <div class="report-meta">
+                        <span class="conference-tag">Security</span>
+                        USENIX Security Symposium
+                    </div>
                 </a>
-                <div class="report-meta">
-                    <span class="conference-tag">Security</span>
-                    USENIX Security Symposium
-                </div>
             </li>
         </ul>
 
