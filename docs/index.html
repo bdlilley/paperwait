@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Paper Analysis</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #242424;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin-top: 0;
+            color: #e0e0e0;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 15px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #b0b0b0;
+            margin-top: -10px;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .reports-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .report-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+            transition: all 0.2s;
+        }
+        .report-item:hover {
+            background-color: #303030;
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+        .report-link {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+        .report-link:hover {
+            color: #66BB6A;
+        }
+        .report-meta {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .conference-tag {
+            display: inline-block;
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Research Paper Analysis</h1>
+        <p class="subtitle">Conference proceedings analyzed and categorized by theme</p>
+
+        <ul class="reports-list">
+            <li class="report-item">
+                <a href="research_ccs25.html" class="report-link">
+                    CCS 2025
+                </a>
+                <div class="report-meta">
+                    <span class="conference-tag">Security</span>
+                    ACM Conference on Computer and Communications Security
+                </div>
+            </li>
+
+            <li class="report-item">
+                <a href="research_dimva25.html" class="report-link">
+                    DIMVA 2025
+                </a>
+                <div class="report-meta">
+                    <span class="conference-tag">Malware</span>
+                    Detection of Intrusions and Malware & Vulnerability Assessment
+                </div>
+            </li>
+
+            <li class="report-item">
+                <a href="research_eurosec25.html" class="report-link">
+                    EuroSec 2025
+                </a>
+                <div class="report-meta">
+                    <span class="conference-tag">Security</span>
+                    European Workshop on Systems Security
+                </div>
+            </li>
+
+            <li class="report-item">
+                <a href="research_usenix24.html" class="report-link">
+                    USENIX Security 2024
+                </a>
+                <div class="report-meta">
+                    <span class="conference-tag">Security</span>
+                    USENIX Security Symposium
+                </div>
+            </li>
+
+            <li class="report-item">
+                <a href="research_usenix25.html" class="report-link">
+                    USENIX Security 2025
+                </a>
+                <div class="report-meta">
+                    <span class="conference-tag">Security</span>
+                    USENIX Security Symposium
+                </div>
+            </li>
+        </ul>
+
+        <div class="footer">
+            Generated with research-drexel analyze-papers
+        </div>
+    </div>
+</body>
+</html>
