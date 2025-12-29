@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Analysis Report - research_eurosec25</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            width: calc(100% - 40px);
+            margin: 0 auto;
+            background: #242424;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin-top: 0;
+            color: #e0e0e0;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .top-themes {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+        }
+        .top-themes h2 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+        .top-themes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-theme-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-theme-count {
+            font-size: 11px;
+            color: #b0b0b0;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .search-box {
+            padding: 10px;
+            border: 2px solid #3a3a3a;
+            border-radius: 4px;
+            font-size: 14px;
+            flex: 1;
+            max-width: 400px;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .stats {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .filter-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-badge:hover {
+            filter: brightness(0.9);
+            transform: scale(1.05);
+        }
+        .filter-badge::after {
+            content: " ✕";
+            margin-left: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background-color: #2d6a3e;
+            color: #e0e0e0;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+        th:hover {
+            background-color: #357a47;
+        }
+        th::after {
+            content: " ↕";
+            opacity: 0.5;
+            font-size: 12px;
+        }
+        th.sort-asc::after {
+            content: " ↑";
+            opacity: 1;
+        }
+        th.sort-desc::after {
+            content: " ↓";
+            opacity: 1;
+        }
+        .resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            cursor: col-resize;
+            user-select: none;
+            height: 100%;
+        }
+        .resizer:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        th:last-child .resizer {
+            display: none;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #3a3a3a;
+            vertical-align: top;
+        }
+        tr:hover {
+            background-color: #2a2a2a;
+        }
+        .file-name {
+            font-family: monospace;
+            font-size: 12px;
+            color: #b0b0b0;
+            max-width: 200px;
+            word-break: break-word;
+        }
+        .paper-title {
+            font-weight: 600;
+            color: #e0e0e0;
+            max-width: 300px;
+        }
+        .authors {
+            font-size: 12px;
+            color: #b0b0b0;
+            max-width: 250px;
+        }
+        .description {
+            font-size: 12px;
+            color: #b0b0b0;
+            line-height: 1.4;
+            max-width: 400px;
+        }
+        .future-work-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 12px;
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
+        .future-work-list li {
+            margin-bottom: 4px;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: 300px;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .tag.theme {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .tag.theme:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+        }
+        .tag.theme.active {
+            border-color: rgba(0,0,0,0.3);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        .rating-cell {
+            text-align: center;
+            width: 100px;
+        }
+        .star-rating {
+            display: inline-flex;
+            gap: 2px;
+            user-select: none;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 20px;
+            color: #4a4a4a;
+            transition: color 0.2s, transform 0.1s;
+        }
+        .star:hover {
+            transform: scale(1.2);
+        }
+        .star.active {
+            color: #FFD700;
+        }
+        .clipboard-icon {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            color: #b0b0b0;
+        }
+        .clipboard-icon:hover {
+            opacity: 1;
+        }
+        .file-name-cell {
+            text-align: center;
+        }
+        .copy-reviewed-btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+        .copy-reviewed-btn:hover {
+            background-color: #45a049;
+        }
+        .copy-reviewed-btn:active {
+            background-color: #3d8b40;
+        }
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4a4a4a;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #e0e0e0;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .toggle-label {
+            font-size: 13px;
+            color: #b0b0b0;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6a6a6a;
+            font-size: 16px;
+        }
+        .expandable {
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .expandable.expanded {
+            max-height: none;
+        }
+        .expandable::after {
+            content: "▼ Show more";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(to right, transparent, #242424 20%);
+            padding: 0 5px;
+            color: #4CAF50;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .expandable.expanded::after {
+            content: "▲ Show less";
+            position: relative;
+            display: block;
+            background: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Paper Analysis Report: research_eurosec25</h1>
+        <div class="top-themes">
+            <h2>Top Themes</h2>
+            <div class="top-themes-list"><div class="top-theme-item">
+                    <span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span>
+                    <span class="top-theme-count">5</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="vulnerability analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">vulnerability analysis</span>
+                    <span class="top-theme-count">2</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="automated red teaming" style="background-color: hsl(130, 55%, 60%); color: #fff;">automated red teaming</span>
+                    <span class="top-theme-count">2</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="memory safety" style="background-color: hsl(190, 55%, 60%); color: #fff;">memory safety</span>
+                    <span class="top-theme-count">2</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="network security" style="background-color: hsl(164, 49%, 64%); color: #000;">network security</span>
+                    <span class="top-theme-count">2</span>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search by title, authors, themes, keywords...">
+            <span id="filterBadge" class="filter-badge" style="display: none;"></span>
+            <div class="toggle-wrapper">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="reviewedOnlyToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Show Review Papers</span>
+            </div>
+            <button id="copyReviewedBtn" class="copy-reviewed-btn">Copy Review Papers</button>
+            <span class="stats">
+                Showing <span id="visibleCount">11</span> of <span id="totalCount">11</span> papers
+            </span>
+        </div>
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th data-column="rating" style="width: 100px;">Rating</th>
+                    <th data-column="file_name" style="width: 60px;">File</th>
+                    <th data-column="paper_title" style="width: 300px;">Title<div class="resizer"></div></th>
+                    <th data-column="short_llm_description" style="width: 300px;">Short Description<div class="resizer"></div></th>
+                    <th data-column="long_llm_description" style="width: 400px;">Long Description<div class="resizer"></div></th>
+                    <th data-column="future_work" style="width: 300px;">Future Work<div class="resizer"></div></th>
+                    <th data-column="themes" style="width: 300px;">Themes</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="CUDA, Woulda, Shoulda Returning Exploits in a SASS-y World.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="CUDA, Woulda, Shoulda Returning Exploits in a SASS-y World.pdf"><svg class="clipboard-icon" data-filename="CUDA, Woulda, Shoulda Returning Exploits in a SASS-y World.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">CUDA, Woulda, Shoulda: Returning Exploits in a SASS-y World</td><td class="description">This paper analyzes the vulnerabilities of NVIDIA CUDA-enabled GPUs, demonstrating that Return-Oriented Programming (ROP) attacks can be executed on these devices, posing greater risks than previously recognized.</td><td class="description"><div class="expandable">The rising popularity of Graphics Processing Units (GPUs) has made them attractive targets for attackers aiming to exploit vulnerabilities in applications that handle sensitive data. This paper presents a rigorous experimental analysis of input-triggered, ROP-based exploits within device-side NVIDIA CUDA code. The authors repurpose known CPU-based code-reuse attack techniques to discover that the gadget set available in CUDA code is Turing-complete, allowing for arbitrary computations, thus showing that ROP attacks on GPUs are not only feasible but also potentially more potent than previously thought.
+
+The authors evaluate existing device-side mitigations, such as stack canaries and Address Space Layout Randomization (ASLR), finding them to be less secure than their CPU counterparts. They emphasize the urgent need for robust protection mechanisms tailored to the unique architectures of GPUs. The study concludes by calling for actions from both the GPU industry and academic community to develop improved security measures against the expressive attacks demonstrated in their findings.</div></td><td class="description"><ul class="future-work-list"><li>Future work should focus on developing tools that automatically chain CUDA ROP gadgets to achieve the attacker&#39;s desired outcome.</li><li>Evaluating GPUs from various manufacturers and other types of auxiliary processing units (XPUs) is necessary as they may share similar vulnerabilities.</li><li>Research should assess the viability of new protection mechanisms such as Control-Flow Integrity (CFI) and Code-Pointer Integrity (CPI) against ROP attacks.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="GPU security" style="background-color: hsl(14, 59%, 64%); color: #000;">GPU security</span><span class="tag theme" data-theme="Return-Oriented Programming" style="background-color: hsl(217, 62%, 57%); color: #fff;">Return-Oriented Programming</span><span class="tag theme" data-theme="automated red teaming" style="background-color: hsl(130, 55%, 60%); color: #fff;">automated red teaming</span><span class="tag theme" data-theme="vulnerability analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">vulnerability analysis</span><span class="tag theme" data-theme="memory safety" style="background-color: hsl(190, 55%, 60%); color: #fff;">memory safety</span><span class="tag theme" data-theme="code reuse attacks" style="background-color: hsl(95, 60%, 55%); color: #fff;">code reuse attacks</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Can Neural Decompilation Assist Vulnerability Prediction on Binary Code.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Can Neural Decompilation Assist Vulnerability Prediction on Binary Code.pdf"><svg class="clipboard-icon" data-filename="Can Neural Decompilation Assist Vulnerability Prediction on Binary Code.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Can Neural Decompilation Assist Vulnerability Prediction on Binary Code?</td><td class="description">This paper explores the use of neural decompilation to predict vulnerabilities in binary code without requiring access to the source code, demonstrating significant improvements over traditional methods.</td><td class="description"><div class="expandable">The research addresses the limitations of vulnerability prediction approaches that rely on source code, which is often unavailable for proprietary or legacy software. By leveraging neural decompilation, the authors translate binary code back into a high-level representation, allowing for effective vulnerability assessment. The study demonstrates that this method can successfully predict whether a binary contains vulnerabilities and classify the type of vulnerabilities, achieving high accuracy metrics in the process.
+
+The authors conducted extensive experiments using datasets and various deep learning models, such as CodeGPT and CodeBERT, to validate their approach. Results indicated that neural decompilation not only surpasses traditional static analysis tools but also enhances vulnerability prediction accuracy compared to conventional methods. This research highlights the potential of combining neural networks with advanced decompilation techniques to improve security assessments in software development environments, especially in scenarios where source code is inaccessible.</div></td><td class="description"><ul class="future-work-list"><li style="list-style: none; color: #6a6a6a; font-style: italic;">None specified</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="binary analysis" style="background-color: hsl(47, 52%, 52%); color: #fff;">binary analysis</span><span class="tag theme" data-theme="deep learning" style="background-color: hsl(144, 49%, 59%); color: #fff;">deep learning</span><span class="tag theme" data-theme="vulnerability prediction" style="background-color: hsl(170, 55%, 55%); color: #fff;">vulnerability prediction</span><span class="tag theme" data-theme="software security" style="background-color: hsl(113, 58%, 58%); color: #fff;">software security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Diagnosing and Neutralizing Address-Sensitive Behavior in Multi-Variant Execution Systems.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Diagnosing and Neutralizing Address-Sensitive Behavior in Multi-Variant Execution Systems.pdf"><svg class="clipboard-icon" data-filename="Diagnosing and Neutralizing Address-Sensitive Behavior in Multi-Variant Execution Systems.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Diagnosing and Neutralizing Address-Sensitive Behavior in Multi-Variant Execution Systems</td><td class="description">This paper explores the challenges posed by Address-Sensitive Behavior (ASB) in Multi-Variant Execution (MVX) systems, which run multiple variants of a program to enhance security against memory corruption exploits.</td><td class="description"><div class="expandable">The authors investigate Address-Sensitive Behavior (ASB) within Multi-Variant Execution (MVX) systems, which are designed to mitigate memory corruption vulnerabilities by running diversified variants of the same program in parallel. ASB presents a significant hurdle as it causes benign programs to behave differently based on their memory layout, which can lead to false positives in detecting malicious behavior. The paper characterizes and quantifies ASB across various real-world software, revealing its impact on the effectiveness of data layout diversification within MVX systems, especially against data-only attacks.
+
+To tackle these challenges, the authors introduce a novel technique called variant dining, which aids in diagnosing and potentially neutralizing ASB by automatically identifying address-related data across diversified variants. The implementation of this technique within an MVX framework, known as ReMon, allows for improved detection and handling of benign divergences that could be mistaken for attacks. The study concludes with a discussion on the implications of ASB for broader software applications and suggests that addressing these behaviors could enhance the reliability and security of diverse software systems.</div></td><td class="description"><ul class="future-work-list"><li>Future work could explore the inherent parallelism of MVX systems to improve efficiency in generating variant diagnostics.</li><li>Investigating asynchronous scanning techniques from garbage collection could provide additional solutions for optimizing variant diagnostics.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="security" style="background-color: hsl(344, 49%, 64%); color: #000;">security</span><span class="tag theme" data-theme="software diversity" style="background-color: hsl(53, 58%, 58%); color: #fff;">software diversity</span><span class="tag theme" data-theme="vulnerability analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">vulnerability analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Enhancing Graphical Authentication with EEG A Study on Neural Responses and AI-Driven Security.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Enhancing Graphical Authentication with EEG A Study on Neural Responses and AI-Driven Security.pdf"><svg class="clipboard-icon" data-filename="Enhancing Graphical Authentication with EEG A Study on Neural Responses and AI-Driven Security.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Enhancing Graphical Authentication with EEG: A Study on Neural Responses and AI-Driven Security</td><td class="description">This paper explores the integration of electroencephalography (EEG) with Microsoft&#39;s Picture Gesture Authentication to enhance security against impersonation attacks through user-specific neural responses.</td><td class="description"><div class="expandable">The study presents an innovative two-factor authentication system that combines graphical passwords with EEG signals, aiming to leverage users&#39; unique neural responses during pictorial processing to improve security. Conducted over six months with 30 participants, the research demonstrates that familiar background images significantly enhance both cognitive efficiency and authentication accuracy. By analyzing EEG features, the authors successfully trained machine learning models to differentiate between genuine users and impostors, achieving high accuracy rates in various scenarios.
+
+The paper discusses the challenges and potential of integrating EEG technology into graphical authentication systems, highlighting the critical role of familiarity with background images in enhancing user authentication. The authors utilize various machine learning algorithms, including Support Vector Machines, to evaluate the system&#39;s effectiveness, ultimately suggesting that EEG-based technology can provide a robust alternative to traditional authentication methods. The study lays the groundwork for future research in biometric security systems, emphasizing the importance of EEG features related to memory and decision-making in improving authentication processes.</div></td><td class="description"><ul class="future-work-list"><li>Future iterations will aim to enhance realism by allowing users to select their own images, capitalizing on the familiarity effect.</li><li>The research plans to analyze how different screen sizes affect the system&#39;s effectiveness and adaptability.</li><li>Further evaluation will include developing a diverse dataset from legitimate users to improve the system&#39;s generalization.</li><li>The authors intend to explore countermeasures against shoulder-surfing through dynamic gesture placement and obfuscation techniques.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="authentication" style="background-color: hsl(2, 47%, 52%); color: #fff;">authentication</span><span class="tag theme" data-theme="biometrics" style="background-color: hsl(348, 53%, 53%); color: #fff;">biometrics</span><span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span><span class="tag theme" data-theme="neurotechnology" style="background-color: hsl(291, 56%, 56%); color: #fff;">neurotechnology</span><span class="tag theme" data-theme="multi-factor authentication" style="background-color: hsl(218, 63%, 58%); color: #fff;">multi-factor authentication</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Enhancing IoT Defenses Against Radio Jamming Insights from a Thread Testbed Case Study.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Enhancing IoT Defenses Against Radio Jamming Insights from a Thread Testbed Case Study.pdf"><svg class="clipboard-icon" data-filename="Enhancing IoT Defenses Against Radio Jamming Insights from a Thread Testbed Case Study.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Enhancing IoT Defenses Against Radio Jamming: Insights from a Thread Testbed Case Study</td><td class="description">This paper examines the vulnerabilities of Thread-based IoT networks to radio jamming attacks and proposes a channel hopping countermeasure to enhance network resilience.</td><td class="description"><div class="expandable">As the Internet of Things (IoT) continues to grow, ensuring reliable wireless communication amidst threats like radio jamming is imperative. This paper presents a comprehensive case study focused on improving the resilience of Thread-based IoT networks against constant jamming attacks within a controlled testbed environment. The study investigates the vulnerabilities of the Thread protocol, which is commonly used in smart home applications, and implements a countermeasure through an innovative channel hopping method. The authors provide detailed experimental results that demonstrate the effectiveness of this countermeasure in mitigating jamming threats and maintaining service availability.
+
+The findings indicate that while Thread networks are inherently vulnerable to radio frequency jamming, practical solutions can be developed and tested using real hardware. The paper outlines the process of creating a testbed for simulating jamming attacks and assessing the performance of the proposed countermeasures. Through systematic experimentation, the authors reveal insights into the effectiveness of channel hopping as a strategy to evade jamming, highlighting its potential for real-world applications. The work not only identifies critical vulnerabilities but also contributes actionable defense mechanisms that can be integrated into future IoT deployments to enhance security and reliability.</div></td><td class="description"><ul class="future-work-list"><li>Future improvements to the countermeasure will focus on reducing channel hop latency.</li><li>The authors aim to handle partial jamming attacks more effectively.</li><li>Development of capabilities to counter multi-channel jamming is also suggested.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="Denial-of-Service attacks" style="background-color: hsl(300, 45%, 50%); color: #fff;">Denial-of-Service attacks</span><span class="tag theme" data-theme="network security" style="background-color: hsl(164, 49%, 64%); color: #000;">network security</span><span class="tag theme" data-theme="IoT security" style="background-color: hsl(183, 48%, 53%); color: #fff;">IoT security</span><span class="tag theme" data-theme="adaptive security" style="background-color: hsl(259, 64%, 54%); color: #fff;">adaptive security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Mazu A Zero Trust Architecture for Service Mesh Control Planes.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Mazu A Zero Trust Architecture for Service Mesh Control Planes.pdf"><svg class="clipboard-icon" data-filename="Mazu A Zero Trust Architecture for Service Mesh Control Planes.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Mazu: A Zero Trust Architecture for Service Mesh Control Planes</td><td class="description">This paper presents Mazu, a system designed to eliminate trust in service mesh control planes by replacing the local certificate authority with an unprivileged principal, thereby enhancing microservice security through zero trust networking.</td><td class="description"><div class="expandable">Mazu is introduced as a novel system aimed at improving the security of microservices deployed within cloud environments by utilizing a zero trust architecture. The paper discusses the inherent vulnerabilities associated with traditional service meshes, particularly focusing on the control plane&#39;s local certificate authority (CA) which, if compromised, can allow attackers to issue rogue certificates and impersonate services. By leveraging Registration-Based Encryption (RBE), Mazu replaces the CA with a key curator that does not possess secret keys, thus significantly reducing the risks associated with central trust authorities while maintaining performance and compatibility with existing microservice architectures like Istio.
+
+The authors detail their preliminary evaluations of Mazu, demonstrating that it can effectively reduce the attack surface of service meshes while adding minimal latency (0.17ms) compared to traditional mTLS-enabled Istio configurations. They also outline the design of Mazu, including its innovative approach to registration and service authentication, and discuss various security challenges that arise from this architecture. Furthermore, the paper addresses future work to enhance the system&#39;s trust assumptions in Kubernetes, indicating ongoing efforts to evolve Mazu and improve its resilience against complex security threats.</div></td><td class="description"><ul class="future-work-list"><li>Explore solutions like TrInc to integrate monotonic counters into network protocols for improved security.</li><li>Investigate reducing trust in Kubernetes by establishing a separate RBE ID-space for handling token revocations.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="cloud security" style="background-color: hsl(88, 53%, 63%); color: #000;">cloud security</span><span class="tag theme" data-theme="automated red teaming" style="background-color: hsl(130, 55%, 60%); color: #fff;">automated red teaming</span><span class="tag theme" data-theme="zero trust architecture" style="background-color: hsl(96, 61%, 56%); color: #fff;">zero trust architecture</span><span class="tag theme" data-theme="microservices security" style="background-color: hsl(148, 53%, 63%); color: #000;">microservices security</span><span class="tag theme" data-theme="registration-based encryption" style="background-color: hsl(59, 64%, 64%); color: #000;">registration-based encryption</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Provable Co-Owned Data Deletion with Zero-Residuals and Verifiability in Multi-Cloud Environment.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Provable Co-Owned Data Deletion with Zero-Residuals and Verifiability in Multi-Cloud Environment.pdf"><svg class="clipboard-icon" data-filename="Provable Co-Owned Data Deletion with Zero-Residuals and Verifiability in Multi-Cloud Environment.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Provable Co-Owned Data Deletion with Zero-Residuals and Verifiability in Multi-Cloud Environment</td><td class="description">This paper presents a framework for secure and verifiable deletion of co-owned data in multi-cloud environments, ensuring that sensitive data remains inaccessible and is completely erased.</td><td class="description"><div class="expandable">The rapid expansion of multi-cloud environments and collaborative data ownership has raised significant challenges in ensuring verifiable deletion of co-owned data. Current approaches primarily focus on individual ownership and often lack robust verification mechanisms, treating deletion as a black box. This paper addresses the need for a secure processing and verifiable deletion framework for shared outsourced data across various cloud providers, utilizing Hardware Security Modules (HSMs) for cryptographic key management and Secure Enclaves for on-cloud computations to prevent unauthorized exposure of sensitive data.
+
+The proposed framework integrates a Bounded Merkle Hash Tree (BMHT) to ensure bounded storage and verifiable deletion within each cloud provider, while a Global Merkle Forest (GMF) aggregates BMHT roots across providers to enable consistent global verification. The system guarantees zero-residual overwriting through a three-cycle process that obscures data patterns and prevents recoverable traces. Furthermore, the implementation emphasizes cryptographic proof generation for storage, membership, non-membership, and overwriting, ultimately ensuring that data never leaves the cloud and that all operations are verifiable and secure, addressing compliance requirements under regulations like GDPR.</div></td><td class="description"><ul class="future-work-list"><li>Deploying the solution on AWS using Cloud HSM, Nitro Enclaves, and Python-based BMHT.</li><li>Evaluating scalability, computational overhead, proof efficiency, and cost analysis.</li><li>Conducting formal validation of the framework.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="cloud security" style="background-color: hsl(88, 53%, 63%); color: #000;">cloud security</span><span class="tag theme" data-theme="data governance" style="background-color: hsl(80, 45%, 55%); color: #fff;">data governance</span><span class="tag theme" data-theme="verifiable computation" style="background-color: hsl(214, 59%, 54%); color: #fff;">verifiable computation</span><span class="tag theme" data-theme="privacy-preserving protocols" style="background-color: hsl(221, 46%, 61%); color: #000;">privacy-preserving protocols</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Site Attestation Browser-based Remote Attestation.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Site Attestation Browser-based Remote Attestation.pdf"><svg class="clipboard-icon" data-filename="Site Attestation Browser-based Remote Attestation.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Site Attestation: Browser-based Remote Attestation</td><td class="description">This paper presents a novel browser-based site attestation mechanism that leverages confidential computing to enhance trust and security when users access websites. By integrating remote attestation capabilities directly into web browsers, the proposed method enables users to validate advanced security properties of websites.</td><td class="description"><div class="expandable">In the paper, the authors address the limitations of trust in current web security practices, which primarily rely on HTTPS and Certificate Authorities (CAs) without providing substantial guarantees about the security of the websites themselves. They propose a solution called &#39;site attestation,&#39; which utilizes confidential computing technology to enable users to verify the security properties of a website through a remote attestation process. This process allows users to assess whether their data handling policies are being respected, such as ensuring that user data is only processed during the visit and not stored or forwarded elsewhere.
+
+The implementation of site attestation involves extending the Firefox browser to support a web extension that can process Transport Layer Security (TLS) extensions. The authors detail the architecture of their solution, which includes user-defined policies for trust evaluation and the ability to visualize the attestation process. Evaluation results demonstrate that the proposed site attestation method introduces moderate overhead during connection establishment but negligible overhead once the connection is established, thus maintaining a balance between security and user experience.</div></td><td class="description"><ul class="future-work-list"><li>Future work may explore the integration of additional security policies for user-defined attestation.</li><li>The authors suggest that enhancing the user interface for better interaction during the attestation process could be beneficial.</li><li>Further investigation into optimizing performance for real-time applications may also be promising.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="browser security" style="background-color: hsl(263, 48%, 58%); color: #fff;">browser security</span><span class="tag theme" data-theme="remote attestation" style="background-color: hsl(322, 47%, 57%); color: #fff;">remote attestation</span><span class="tag theme" data-theme="confidential computing" style="background-color: hsl(187, 52%, 57%); color: #fff;">confidential computing</span><span class="tag theme" data-theme="security protocols" style="background-color: hsl(311, 56%, 61%); color: #000;">security protocols</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="hwdbg Debugging Hardware Like Software.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="hwdbg Debugging Hardware Like Software.pdf"><svg class="clipboard-icon" data-filename="hwdbg Debugging Hardware Like Software.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">hwdbg: Debugging Hardware Like Software</td><td class="description">This paper presents hwdbg, a novel hardware debugging tool that integrates software debugging concepts to enhance the debugging process for hardware designs.</td><td class="description"><div class="expandable">The paper introduces hwdbg, an innovative hardware debugging framework that applies software debugging principles to address the unique challenges in hardware design verification. Traditional hardware debugging tools often lack flexibility and ease of use compared to software environments, which can slow down the development process and compromise security. hwdbg allows for real-time interaction with hardware, enabling users to step through the hardware design cycle, visualize waveforms, and inspect values similar to software debugging tools. This tool also facilitates reverse engineering and chip fuzzing by allowing users to inject random signals to test functionality under various conditions.
+
+hwdbg is built to enhance the debugging experience by providing capabilities like signal manipulation, automated analysis, and scripting for both passive and active debugging strategies. The core insight behind hwdbg is its synthesis into FPGA, allowing it to interact directly with the device under test in real time. This integration provides a seamless debugging experience that not only improves hardware debugging but also empowers security researchers by enabling precise signal tracing and real-time circuit manipulation. The authors conclude that hwdbg represents a significant advancement in hardware testing, offering an open-source, customizable solution that meets the needs of modern hardware development.</div></td><td class="description"><ul class="future-work-list"><li>Further enhancements to the hwdbg tool could include additional debugging features tailored for specific hardware architectures.</li><li>Exploration of automated testing frameworks that integrate with hwdbg for broader application in hardware security.</li><li>Continued research into the scalability of hwdbg for increasingly complex hardware designs.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="hardware security" style="background-color: hsl(126, 51%, 56%); color: #fff;">hardware security</span><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="reverse engineering" style="background-color: hsl(28, 53%, 63%); color: #000;">reverse engineering</span><span class="tag theme" data-theme="fuzzing" style="background-color: hsl(91, 56%, 51%); color: #fff;">fuzzing</span><span class="tag theme" data-theme="hardware testing" style="background-color: hsl(131, 56%, 61%); color: #000;">hardware testing</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="rustc++ Facilitating Advanced Analysis of Rust Code.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="rustc++ Facilitating Advanced Analysis of Rust Code.pdf"><svg class="clipboard-icon" data-filename="rustc++ Facilitating Advanced Analysis of Rust Code.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">rustc++: Facilitating Advanced Analysis of Rust Code</td><td class="description">This paper presents rustc++, an enhanced Rust compiler designed to facilitate advanced analysis of Rust code by preserving and propagating metadata related to safety across compilation stages.</td><td class="description"><div class="expandable">The paper introduces rustc++, a modified version of the Rust compiler aimed at improving the analysis of Rust programs by addressing the challenges posed by the language&#39;s unique memory safety model. Rust&#39;s memory safety is enforced through compile-time checks and an ownership model, which can complicate the integration of unsafe code with safe code. The authors propose an enhanced intermediate representation called MIR++ that retains metadata about safe and unsafe contexts during the compilation process, allowing for more precise analysis and potential optimizations in tools that handle mixed binaries.
+
+In addition to introducing MIR++, the paper discusses the implementation details and the modifications made to the Rust compiler to ensure that this metadata is propagated through multiple compilation stages, including the LLVM intermediate representation and the final binaries. The authors emphasize that the goal of rustc++ is not only to improve existing analysis tools but also to serve as an open-source foundation for future advancements in Rust analysis techniques, potentially benefiting the broader programming community dealing with safety in mixed code environments.</div></td><td class="description"><ul class="future-work-list"><li>Future work includes incorporating raw pointer metadata into the rustc++ framework.</li><li>The authors aim to enable deserialization of MIR back into the Rust compiler pipeline.</li><li>There is a suggestion to explore additional safety metadata to enhance the analysis of unsafe code.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="compiler design" style="background-color: hsl(176, 61%, 61%); color: #000;">compiler design</span><span class="tag theme" data-theme="memory safety" style="background-color: hsl(190, 55%, 60%); color: #fff;">memory safety</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="Snort Meets Transformers Accelerating Transformer-Based Network Traffic Classification for Real-Time.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="Snort Meets Transformers Accelerating Transformer-Based Network Traffic Classification for Real-Time.pdf"><svg class="clipboard-icon" data-filename="Snort Meets Transformers Accelerating Transformer-Based Network Traffic Classification for Real-Time.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Snort Meets Transformers: Accelerating Transformer-Based Network Traffic Classification for Real-Time Performance</td><td class="description">This paper presents a novel approach that combines the efficiency of signature-based intrusion detection systems like Snort with the accuracy of transformer-based models for real-time network traffic classification.</td><td class="description"><div class="expandable">In this research, the authors address the challenges of real-time deployment of transformer-based models in network traffic classification, which traditionally suffer from high computational costs. They propose a cascading framework that integrates the efficient signature-based detection capabilities of Snort with the powerful analysis of the ET-BERT transformer model. By leveraging the strengths of both systems, their approach allows for rapid processing of routine classifications while using the transformer model for more complex cases, effectively improving throughput without sacrificing detection accuracy.
+
+The methodology involves training the ET-BERT model to recognize traffic patterns, extracting significant byte sequences through SHAP analysis, and using these sequences to enhance Snort&#39;s signature base. During deployment, Snort handles the majority of traffic classifications, forwarding only the more complicated cases to ET-BERT. Experimental results demonstrate that this hybrid approach achieves over four times the throughput of the standalone ET-BERT model while maintaining low false positive and negative rates, showcasing its potential for practical application in cybersecurity.</div></td><td class="description"><ul class="future-work-list"><li>Integrating Snort&#39;s existing rich default ruleset alongside the distinctive byte sequence patterns to further enhance performance.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="network security" style="background-color: hsl(164, 49%, 64%); color: #000;">network security</span><span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span></div></td></tr>
+
+            </tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display: none;">
+            No papers match your search criteria.
+        </div>
+    </div>
+
+    <script>
+        // State
+        const searchBox = document.getElementById('searchBox');
+        const tableBody = document.getElementById('tableBody');
+        const rows = Array.from(tableBody.getElementsByTagName('tr'));
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+        const filterBadge = document.getElementById('filterBadge');
+        const reviewedOnlyToggle = document.getElementById('reviewedOnlyToggle');
+        let activeThemeFilter = null;
+
+        // Combined filter function
+        function applyFilters() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const reviewedOnly = reviewedOnlyToggle.checked;
+            let visible = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                let matchesSearch = searchTerm === '' || text.includes(searchTerm);
+                let matchesTheme = true;
+                let matchesReview = true;
+
+                // Check theme filter if active
+                if (activeThemeFilter) {
+                    const themeTags = row.querySelectorAll('.tag.theme');
+                    matchesTheme = Array.from(themeTags).some(tag =>
+                        tag.dataset.theme === activeThemeFilter
+                    );
+                }
+
+                // Check rating filter if active
+                if (reviewedOnly) {
+                    const starRating = row.querySelector('.star-rating');
+                    const rating = starRating ? getCurrentRating(starRating) : 0;
+                    matchesReview = rating > 0;
+                }
+
+                if (matchesSearch && matchesTheme && matchesReview) {
+                    row.style.display = '';
+                    visible++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            visibleCount.textContent = visible;
+            noResults.style.display = visible === 0 ? 'block' : 'none';
+            tableBody.style.display = visible === 0 ? 'none' : '';
+        }
+
+        // Search functionality
+        searchBox.addEventListener('input', applyFilters);
+
+        // Reviewed only toggle
+        reviewedOnlyToggle.addEventListener('change', applyFilters);
+
+        // Theme filter functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('theme') && e.target.dataset.theme) {
+                const clickedTheme = e.target.dataset.theme;
+
+                // Toggle filter
+                if (activeThemeFilter === clickedTheme) {
+                    // Clear filter
+                    activeThemeFilter = null;
+                    filterBadge.style.display = 'none';
+                    document.querySelectorAll('.tag.theme').forEach(tag => {
+                        tag.classList.remove('active');
+                    });
+                } else {
+                    // Set new filter
+                    activeThemeFilter = clickedTheme;
+                    filterBadge.textContent = 'Theme: ' + clickedTheme;
+                    filterBadge.style.display = 'inline-block';
+
+                    // Copy the color from the clicked tag
+                    const bgColor = window.getComputedStyle(e.target).backgroundColor;
+                    const textColor = window.getComputedStyle(e.target).color;
+                    filterBadge.style.backgroundColor = bgColor;
+                    filterBadge.style.color = textColor;
+
+                    // Update active states
+                    document.querySelectorAll('.tag.theme').forEach(tag => {
+                        if (tag.dataset.theme === clickedTheme) {
+                            tag.classList.add('active');
+                        } else {
+                            tag.classList.remove('active');
+                        }
+                    });
+                }
+
+                applyFilters();
+            }
+        });
+
+        // Clear filter badge on click
+        filterBadge.addEventListener('click', function() {
+            activeThemeFilter = null;
+            filterBadge.style.display = 'none';
+            document.querySelectorAll('.tag.theme').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            applyFilters();
+        });
+
+        // Sort functionality
+        let currentSort = { column: null, ascending: true };
+
+        document.querySelectorAll('th').forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.dataset.column;
+                const columnIndex = Array.from(this.parentElement.children).indexOf(this);
+
+                // Toggle sort direction
+                if (currentSort.column === column) {
+                    currentSort.ascending = !currentSort.ascending;
+                } else {
+                    currentSort.column = column;
+                    currentSort.ascending = true;
+                }
+
+                // Update header styles
+                document.querySelectorAll('th').forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                });
+                this.classList.add(currentSort.ascending ? 'sort-asc' : 'sort-desc');
+
+                // Sort rows
+                rows.sort((a, b) => {
+                    let comparison;
+
+                    // Special handling for rating column (star ratings)
+                    if (column === 'rating') {
+                        const aStarRating = a.children[columnIndex].querySelector('.star-rating');
+                        const bStarRating = b.children[columnIndex].querySelector('.star-rating');
+                        const aRating = aStarRating ? getCurrentRating(aStarRating) : 0;
+                        const bRating = bStarRating ? getCurrentRating(bStarRating) : 0;
+                        comparison = aRating - bRating;
+                    } else {
+                        const aText = a.children[columnIndex].textContent.trim();
+                        const bText = b.children[columnIndex].textContent.trim();
+                        comparison = aText.localeCompare(bText);
+                    }
+
+                    return currentSort.ascending ? comparison : -comparison;
+                });
+
+                // Re-append sorted rows
+                rows.forEach(row => tableBody.appendChild(row));
+            });
+        });
+
+        // Expandable long descriptions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('expandable') || e.target.closest('.expandable')) {
+                const expandable = e.target.classList.contains('expandable') ? e.target : e.target.closest('.expandable');
+                expandable.classList.toggle('expanded');
+            }
+        });
+
+        // Column resizing
+        let isResizing = false;
+        let currentResizer = null;
+        let currentTh = null;
+        let startX = 0;
+        let startWidth = 0;
+
+        document.querySelectorAll('.resizer').forEach(resizer => {
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                isResizing = true;
+                currentResizer = this;
+                currentTh = this.parentElement;
+                startX = e.pageX;
+                startWidth = currentTh.offsetWidth;
+
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+
+            const diff = e.pageX - startX;
+            const newWidth = startWidth + diff;
+
+            // Minimum width of 100px
+            if (newWidth >= 100) {
+                currentTh.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isResizing) {
+                isResizing = false;
+                currentResizer = null;
+                currentTh = null;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+
+        // Star rating persistence
+        const STORAGE_KEY = 'paper_rating_status';
+
+        // Load star ratings from localStorage
+        function loadRatingStates() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+
+            try {
+                const ratingStates = JSON.parse(saved);
+                document.querySelectorAll('.star-rating').forEach(starRating => {
+                    const filename = starRating.dataset.filename;
+                    const rating = ratingStates[filename];
+                    if (rating) {
+                        updateStarDisplay(starRating, rating);
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load rating states:', e);
+            }
+        }
+
+        // Save star rating to localStorage
+        function saveRatingState(filename, rating) {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                const ratingStates = saved ? JSON.parse(saved) : {};
+
+                if (rating > 0) {
+                    ratingStates[filename] = rating;
+                } else {
+                    delete ratingStates[filename];
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(ratingStates));
+            } catch (e) {
+                console.error('Failed to save rating state:', e);
+            }
+        }
+
+        // Update star display based on rating
+        function updateStarDisplay(starRating, rating) {
+            const stars = starRating.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Get current rating for a star rating element
+        function getCurrentRating(starRating) {
+            const activeStars = starRating.querySelectorAll('.star.active');
+            return activeStars.length;
+        }
+
+        // Add click listeners to all stars
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const starRating = this.parentElement;
+                const filename = starRating.dataset.filename;
+                const clickedRating = parseInt(this.dataset.rating);
+                const currentRating = getCurrentRating(starRating);
+
+                // Toggle: if clicking the current rating, clear it; otherwise set new rating
+                const newRating = (clickedRating === currentRating) ? 0 : clickedRating;
+
+                updateStarDisplay(starRating, newRating);
+                saveRatingState(filename, newRating);
+
+                // Reapply filters in case reviewed-only toggle is on
+                applyFilters();
+            });
+        });
+
+        // Load states on page load
+        loadRatingStates();
+
+        // Clipboard functionality for file names
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('clipboard-icon') || e.target.closest('.clipboard-icon')) {
+                const icon = e.target.classList.contains('clipboard-icon') ? e.target : e.target.closest('.clipboard-icon');
+                const filename = icon.dataset.filename;
+
+                // Copy to clipboard
+                navigator.clipboard.writeText(filename).then(function() {
+                    // Visual feedback - temporarily change opacity
+                    const originalOpacity = icon.style.opacity;
+                    icon.style.opacity = '1';
+                    icon.style.color = '#4CAF50';
+
+                    setTimeout(function() {
+                        icon.style.opacity = originalOpacity;
+                        icon.style.color = '';
+                    }, 200);
+                }).catch(function(err) {
+                    console.error('Failed to copy filename:', err);
+                });
+            }
+        });
+
+        // Copy reviewed papers functionality (grouped by star rating)
+        document.getElementById('copyReviewedBtn').addEventListener('click', function() {
+            // Collect all rated papers grouped by star level
+            const ratedPapers = { 3: [], 2: [], 1: [] };
+
+            document.querySelectorAll('.star-rating').forEach(function(starRating) {
+                const rating = getCurrentRating(starRating);
+                if (rating > 0) {
+                    const row = starRating.closest('tr');
+                    const filename = starRating.dataset.filename;
+                    const titleCell = row.querySelector('.paper-title');
+                    const title = titleCell ? titleCell.textContent.trim() : '';
+
+                    ratedPapers[rating].push({ filename, title });
+                }
+            });
+
+            // Check if any papers are rated
+            const totalRated = ratedPapers[3].length + ratedPapers[2].length + ratedPapers[1].length;
+            if (totalRated === 0) {
+                alert('No papers have been rated');
+                return;
+            }
+
+            // Build output grouped by star rating
+            let textOutput = '';
+
+            if (ratedPapers[3].length > 0) {
+                textOutput += '=== 3 STARS ===\n';
+                ratedPapers[3].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+                textOutput += '\n';
+            }
+
+            if (ratedPapers[2].length > 0) {
+                textOutput += '=== 2 STARS ===\n';
+                ratedPapers[2].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+                textOutput += '\n';
+            }
+
+            if (ratedPapers[1].length > 0) {
+                textOutput += '=== 1 STAR ===\n';
+                ratedPapers[1].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(textOutput.trim()).then(function() {
+                // Visual feedback
+                const btn = document.getElementById('copyReviewedBtn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied! (' + totalRated + ' papers)';
+                btn.style.backgroundColor = '#3d8b40';
+
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '';
+                }, 1500);
+            }).catch(function(err) {
+                console.error('Failed to copy rated papers:', err);
+                alert('Failed to copy to clipboard');
+            });
+        });
+    </script>
+</body>
+</html>
