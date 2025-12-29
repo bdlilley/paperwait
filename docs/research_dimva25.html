@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Analysis Report - research_dimva25</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            width: calc(100% - 40px);
+            margin: 0 auto;
+            background: #242424;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin-top: 0;
+            color: #e0e0e0;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .top-themes {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+        }
+        .top-themes h2 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+        .top-themes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-theme-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-theme-count {
+            font-size: 11px;
+            color: #b0b0b0;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .search-box {
+            padding: 10px;
+            border: 2px solid #3a3a3a;
+            border-radius: 4px;
+            font-size: 14px;
+            flex: 1;
+            max-width: 400px;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .stats {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .filter-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-badge:hover {
+            filter: brightness(0.9);
+            transform: scale(1.05);
+        }
+        .filter-badge::after {
+            content: " ✕";
+            margin-left: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background-color: #2d6a3e;
+            color: #e0e0e0;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+        th:hover {
+            background-color: #357a47;
+        }
+        th::after {
+            content: " ↕";
+            opacity: 0.5;
+            font-size: 12px;
+        }
+        th.sort-asc::after {
+            content: " ↑";
+            opacity: 1;
+        }
+        th.sort-desc::after {
+            content: " ↓";
+            opacity: 1;
+        }
+        .resizer {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            cursor: col-resize;
+            user-select: none;
+            height: 100%;
+        }
+        .resizer:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        th:last-child .resizer {
+            display: none;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #3a3a3a;
+            vertical-align: top;
+        }
+        tr:hover {
+            background-color: #2a2a2a;
+        }
+        .file-name {
+            font-family: monospace;
+            font-size: 12px;
+            color: #b0b0b0;
+            max-width: 200px;
+            word-break: break-word;
+        }
+        .paper-title {
+            font-weight: 600;
+            color: #e0e0e0;
+            max-width: 300px;
+        }
+        .authors {
+            font-size: 12px;
+            color: #b0b0b0;
+            max-width: 250px;
+        }
+        .description {
+            font-size: 12px;
+            color: #b0b0b0;
+            line-height: 1.4;
+            max-width: 400px;
+        }
+        .future-work-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 12px;
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
+        .future-work-list li {
+            margin-bottom: 4px;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: 300px;
+        }
+        .tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .tag.theme {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .tag.theme:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+        }
+        .tag.theme.active {
+            border-color: rgba(0,0,0,0.3);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+        .rating-cell {
+            text-align: center;
+            width: 100px;
+        }
+        .star-rating {
+            display: inline-flex;
+            gap: 2px;
+            user-select: none;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 20px;
+            color: #4a4a4a;
+            transition: color 0.2s, transform 0.1s;
+        }
+        .star:hover {
+            transform: scale(1.2);
+        }
+        .star.active {
+            color: #FFD700;
+        }
+        .clipboard-icon {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            color: #b0b0b0;
+        }
+        .clipboard-icon:hover {
+            opacity: 1;
+        }
+        .file-name-cell {
+            text-align: center;
+        }
+        .copy-reviewed-btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+        .copy-reviewed-btn:hover {
+            background-color: #45a049;
+        }
+        .copy-reviewed-btn:active {
+            background-color: #3d8b40;
+        }
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4a4a4a;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #e0e0e0;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .toggle-label {
+            font-size: 13px;
+            color: #b0b0b0;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6a6a6a;
+            font-size: 16px;
+        }
+        .expandable {
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .expandable.expanded {
+            max-height: none;
+        }
+        .expandable::after {
+            content: "▼ Show more";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(to right, transparent, #242424 20%);
+            padding: 0 5px;
+            color: #4CAF50;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .expandable.expanded::after {
+            content: "▲ Show less";
+            position: relative;
+            display: block;
+            background: none;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Paper Analysis Report: research_dimva25</h1>
+        <div class="top-themes">
+            <h2>Top Themes</h2>
+            <div class="top-themes-list"><div class="top-theme-item">
+                    <span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span>
+                    <span class="top-theme-count">9</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span>
+                    <span class="top-theme-count">4</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span>
+                    <span class="top-theme-count">3</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="malware detection" style="background-color: hsl(278, 63%, 58%); color: #fff;">malware detection</span>
+                    <span class="top-theme-count">3</span>
+                </div><div class="top-theme-item">
+                    <span class="tag theme" data-theme="automated detection" style="background-color: hsl(317, 62%, 52%); color: #fff;">automated detection</span>
+                    <span class="top-theme-count">3</span>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search by title, authors, themes, keywords...">
+            <span id="filterBadge" class="filter-badge" style="display: none;"></span>
+            <div class="toggle-wrapper">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="reviewedOnlyToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Show Review Papers</span>
+            </div>
+            <button id="copyReviewedBtn" class="copy-reviewed-btn">Copy Review Papers</button>
+            <span class="stats">
+                Showing <span id="visibleCount">26</span> of <span id="totalCount">26</span> papers
+            </span>
+        </div>
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th data-column="rating" style="width: 100px;">Rating</th>
+                    <th data-column="file_name" style="width: 60px;">File</th>
+                    <th data-column="paper_title" style="width: 300px;">Title<div class="resizer"></div></th>
+                    <th data-column="short_llm_description" style="width: 300px;">Short Description<div class="resizer"></div></th>
+                    <th data-column="long_llm_description" style="width: 400px;">Long Description<div class="resizer"></div></th>
+                    <th data-column="future_work" style="width: 300px;">Future Work<div class="resizer"></div></th>
+                    <th data-column="themes" style="width: 300px;">Themes</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_1.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_1.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_1.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">ScamFerret: Detecting Scam Websites Autonomously with Large Language Models</td><td class="description">This paper introduces ScamFerret, an autonomous agent system that utilizes a large language model to detect scam websites by analyzing various data sources without requiring extensive labeled datasets.</td><td class="description"><div class="expandable">ScamFerret is a novel system designed to address the increasing prevalence of sophisticated scam websites that exploit human psychological vulnerabilities. Traditional approaches to detecting these scams often rely on machine learning models that require extensive labeled datasets and feature engineering, limiting their effectiveness and transparency. In contrast, ScamFerret leverages the capabilities of large language models (LLMs) to autonomously collect and analyze information from URLs, achieving remarkable classification accuracy across multiple scam types and languages.
+
+The system operates by utilizing LLMs to select appropriate tools for information gathering, allowing it to analyze web content, DNS records, and user reviews. This iterative approach results in a more nuanced understanding of potential scams, providing not only a classification but also a rationale for its decisions. The evaluation of ScamFerret demonstrates superior performance compared to conventional detection systems, indicating the significant potential of LLMs in enhancing cybersecurity measures against evolving online threats. The paper also discusses the implications of using LLMs for scam detection, highlighting their advantages in terms of adaptability and interpretability, while also acknowledging the challenges related to operational costs and detection evasion tactics employed by attackers.</div></td><td class="description"><ul class="future-work-list"><li>Future work could include tools for analyzing feature similarity to identify scam websites deployed by the same attacker.</li><li>Mitigation strategies for the high operational costs associated with repeated LLM usage should be developed.</li><li>Enhancing the system&#39;s ability to gather more comprehensive data for analysis is necessary.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated detection" style="background-color: hsl(317, 62%, 52%); color: #fff;">automated detection</span><span class="tag theme" data-theme="scam prevention" style="background-color: hsl(281, 46%, 61%); color: #000;">scam prevention</span><span class="tag theme" data-theme="large language models in security" style="background-color: hsl(195, 60%, 50%); color: #fff;">large language models in security</span><span class="tag theme" data-theme="cybersecurity" style="background-color: hsl(254, 59%, 64%); color: #000;">cybersecurity</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_10.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_10.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_10.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">The HMB Timing Side Channel: Exploiting the SSD’s Host Memory Buffer</td><td class="description">This paper presents a novel cache side channel targeting the host-memory buffer (HMB) used by mid-range SSDs, demonstrating its potential for various attacks including covert channels and UI redress attacks.</td><td class="description"><div class="expandable">The paper introduces a new type of cache side channel that exploits the host-memory buffer (HMB) employed in mid-range SSDs to cache translations from logical to physical page addresses. By analyzing four different SSD models, the authors demonstrate that the HMB can be evicted rapidly, allowing attackers to leverage this speed in various scenarios. The paper outlines several practical attacks, achieving data transmission rates of up to 8.3 kbit/s through covert channels and high-accuracy detection of application launches in less than 100 ms via UI redress attacks.
+
+Furthermore, the authors explore blind templating attacks, enabling information leakage even when the attacker lacks read permissions to the target files. They illustrate how these techniques can be applied in various contexts, including communication between virtual machines and leveraging a remote web server as a confused deputy for data exfiltration. The paper concludes with a discussion of potential countermeasures against the HMB side channel, acknowledging that while disabling the HMB can mitigate risks, it may significantly impact performance.</div></td><td class="description"><ul class="future-work-list"><li>Further investigations into the security implications of HMB usage in various SSD models.</li><li>Exploration of additional countermeasures to enhance defenses against HMB side channel attacks.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="cache side-channel attacks" style="background-color: hsl(325, 50%, 60%); color: #fff;">cache side-channel attacks</span><span class="tag theme" data-theme="SSD security" style="background-color: hsl(117, 62%, 62%); color: #000;">SSD security</span><span class="tag theme" data-theme="covert channels" style="background-color: hsl(244, 49%, 54%); color: #fff;">covert channels</span><span class="tag theme" data-theme="UI redress attacks" style="background-color: hsl(6, 51%, 56%); color: #fff;">UI redress attacks</span><span class="tag theme" data-theme="data exfiltration" style="background-color: hsl(267, 52%, 62%); color: #000;">data exfiltration</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_11.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_11.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_11.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Cohere+Reload: Re-enabling High-Resolution Cache Attacks on AMD SEV-SNP</td><td class="description">This paper presents Cohere+Reload, a novel side-channel attack that exploits the coherence mechanism of AMD SEV-SNP to leak sensitive information from confidential virtual machines.</td><td class="description"><div class="expandable">In this study, the authors introduce a new side-channel attack, termed Cohere+Reload, which targets the AMD SEV-SNP architecture. This attack utilizes two types of leakage from the coherence mechanism: first, it exploits coherence conflicts that reveal victim operations at a spatial granularity of 2 kB blocks, and second, it leverages timing correlations based on the number and location of access operations, achieving a maximum spatial resolution of 256 bytes. Through synthetic and real-world attacks, the authors demonstrate that Cohere+Reload can successfully extract control flow information and sensitive data from workloads running in a confidential virtual machine, highlighting the inherent vulnerabilities in the current coherence mechanisms employed by AMD SEV-SNP.</div></td><td class="description"><ul class="future-work-list"><li>The paper suggests that the coherence approach for AMD SEV-SNP should be re-evaluated.</li><li>Further potential mitigations against such attacks are proposed.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="confidential computing" style="background-color: hsl(187, 52%, 57%); color: #fff;">confidential computing</span><span class="tag theme" data-theme="cache attacks" style="background-color: hsl(355, 60%, 60%); color: #fff;">cache attacks</span><span class="tag theme" data-theme="side-channel attacks" style="background-color: hsl(269, 54%, 64%); color: #000;">side-channel attacks</span><span class="tag theme" data-theme="AMD SEV-SNP" style="background-color: hsl(240, 45%, 50%); color: #fff;">AMD SEV-SNP</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_13.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_13.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_13.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Experimental Study of Binary Diﬃng Resilience on Obfuscated Programs</td><td class="description">This paper investigates the impact of various obfuscation techniques on binary diffing algorithms, revealing that inter-procedural obfuscations significantly hinder performance, while intra-procedural and data obfuscations have a lesser effect.</td><td class="description"><div class="expandable">The study presents a comprehensive experimental analysis of how different obfuscation types influence the effectiveness of binary diffing algorithms. It highlights that while intra-procedural and data obfuscations only moderately impact the performance of these algorithms, inter-procedural obfuscations lead to substantial degradation, with f1-scores dropping by up to 40 points. This finding underscores the importance of adapting binary diffing methods to handle obfuscated binaries effectively, suggesting that modular approaches should be employed to improve resilience against obfuscation techniques.
+
+Additionally, the authors developed a large dataset of over 6,700 binaries that includes both clear and obfuscated versions, facilitating further research in binary analysis and malware detection. The results indicate that common binary diffing tools may struggle when faced with obfuscations that alter call graph structures, thus advocating for the use of more tailored and robust tools like QBinDiﬀ, which can better accommodate the unique challenges presented by obfuscated binaries. The paper also emphasizes the potential applications in reverse engineering and software protection, where understanding the nuances of obfuscation can significantly enhance the effectiveness of binary analysis.</div></td><td class="description"><ul class="future-work-list"><li>Further research is needed to explore additional obfuscation techniques and their impact on binary analysis.</li><li>Development of more adaptive binary diffing algorithms that can dynamically adjust to various types of obfuscation.</li><li>Exploring machine learning approaches to improve the identification and handling of obfuscated binaries.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="obfuscation" style="background-color: hsl(25, 50%, 60%); color: #fff;">obfuscation</span><span class="tag theme" data-theme="binary analysis" style="background-color: hsl(47, 52%, 52%); color: #fff;">binary analysis</span><span class="tag theme" data-theme="binary diffing" style="background-color: hsl(347, 52%, 52%); color: #fff;">binary diffing</span><span class="tag theme" data-theme="malware detection" style="background-color: hsl(278, 63%, 58%); color: #fff;">malware detection</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_14.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_14.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_14.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Quantifying and Mitigating the Impact of Obfuscations on Machine-Learning-Based Decompilation Improvement</td><td class="description">This paper investigates the effect of software obfuscation on machine learning models used for decompilation, analyzing how obfuscations impact model accuracy and exploring methods to mitigate these effects.</td><td class="description"><div class="expandable">The paper provides a thorough analysis of the challenges posed by obfuscations in the context of machine learning-based decompilation. Decompilers are essential for translating executable binaries back into high-level programming languages, which is crucial for tasks like malware analysis and vulnerability research. However, obfuscations complicate this process by obscuring the original program&#39;s design and functionality, making it difficult for traditional decompilers to recover meaningful abstractions. The authors conduct a series of experiments to quantify the impact of obfuscations on various machine learning models and to explore the extent to which training on obfuscated data can alleviate accuracy losses. They identify that while obfuscations significantly degrade model performance, training with obfuscated data can partially restore accuracy, highlighting the importance of incorporating obfuscation in training datasets.</div></td><td class="description"><ul class="future-work-list"><li>Further exploration of additional obfuscation techniques and their impact on model performance.</li><li>Development of more robust models that can generalize better across various obfuscation types.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="decompilation" style="background-color: hsl(26, 51%, 61%); color: #000;">decompilation</span><span class="tag theme" data-theme="machine learning in security" style="background-color: hsl(178, 63%, 63%); color: #000;">machine learning in security</span><span class="tag theme" data-theme="obfuscation effects" style="background-color: hsl(63, 48%, 53%); color: #fff;">obfuscation effects</span><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_15.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_15.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_15.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Exploring the Potential of LLMs for Code Deobfuscation</td><td class="description">This paper investigates the effectiveness of Large Language Models (LLMs) in automating the process of code deobfuscation, demonstrating their potential to simplify obfuscated code while addressing challenges related to semantic correctness.</td><td class="description"><div class="expandable">The paper presents a comprehensive exploration of the use of Large Language Models (LLMs) for code deobfuscation, a process that aims to reverse the complexities introduced by code obfuscation techniques. The authors analyze the capabilities of various LLMs, including GPT-4, DeepSeek Coder, and Code Llama, in reducing code complexity while preserving functionality. They construct a dataset featuring pairs of original and obfuscated code to systematically evaluate the models&#39; performance across different obfuscation techniques. The results reveal that fine-tuned models can significantly outperform general-purpose LLMs, achieving impressive reductions in code length while maintaining syntactical correctness. However, challenges remain in ensuring semantical correctness, particularly with increasing complexity of obfuscation techniques.
+
+In their experiments, the authors highlight the distinct performance of LLMs when trained on multiple transformations simultaneously. They find that while the models generally maintain strong deobfuscation capabilities, specific transformations can lead to a decline in performance. Furthermore, the authors conduct a memorization test to determine if the models rely on memorized code snippets or demonstrate true understanding, with results indicating that the models effectively deobfuscate without heavy reliance on memorization. The paper concludes by emphasizing the potential for LLMs to augment existing deobfuscation methods and suggests directions for future research aimed at improving their effectiveness and general applicability in real-world scenarios.</div></td><td class="description"><ul class="future-work-list"><li>Exploring the impact of model size and quantization on deobfuscation performance.</li><li>Evaluating additional obfuscation techniques, including inter-procedural obfuscation and dynamic approaches.</li><li>Extending the memorization experiment to assess various representations of programs.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated deobfuscation" style="background-color: hsl(310, 55%, 60%); color: #fff;">automated deobfuscation</span><span class="tag theme" data-theme="code obfuscation" style="background-color: hsl(145, 50%, 60%); color: #fff;">code obfuscation</span><span class="tag theme" data-theme="large language models" style="background-color: hsl(141, 46%, 56%); color: #fff;">large language models</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_2.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_2.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_2.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Domain Name Encryption Does Not Ensure Privacy: Website Fingerprinting Attack With Only a Few Samples Using Siamese Network</td><td class="description">This paper presents an adaptive website fingerprinting attack that utilizes a Siamese network to infer domain names from encrypted traffic, demonstrating significant privacy risks even with domain name encryption protocols.</td><td class="description"><div class="expandable">The study addresses the ongoing privacy concerns surrounding domain name exposure, which can reveal users&#39; browsing histories despite advancements in encryption protocols like DNS over TLS and HTTPS. The authors propose a novel adaptive website fingerprinting attack using a Siamese network model, which allows for accurate domain name inference with minimal traffic samples. Their evaluation reveals that the attack maintains high accuracy over time, highlighting the limitations of current privacy-enhancing technologies.
+
+In the methodology, the authors detail their approach, which consists of a training phase to create a database mapping domains to IP addresses and a classification phase that utilizes this data to predict domain names from captured traffic. Their findings indicate that even with encrypted sessions, the attack effectively identifies domain names, especially when the anonymity set size is small. The research underscores the need for ongoing innovation in privacy measures, as existing solutions do not sufficiently protect against sophisticated attacks like the one presented in this work.</div></td><td class="description"><ul class="future-work-list"><li>Further exploration of more robust privacy-preserving technologies to counteract website fingerprinting attacks.</li><li>Investigation into the effectiveness of various machine learning models in enhancing the accuracy of fingerprinting attacks.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="website fingerprinting" style="background-color: hsl(314, 59%, 64%); color: #000;">website fingerprinting</span><span class="tag theme" data-theme="encryption" style="background-color: hsl(65, 50%, 55%); color: #fff;">encryption</span><span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span><span class="tag theme" data-theme="privacy risks" style="background-color: hsl(232, 57%, 57%); color: #fff;">privacy risks</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_3.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_3.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_3.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Making (Only) the Right Calls: Preventing Remote Code Execution Attacks in PHP Applications with Contextual, State-Sensitive System Call Filtering</td><td class="description">This paper presents a fine-grained, state-sensitive system call filtering approach to mitigate remote code execution (RCE) vulnerabilities in PHP applications, focusing on contextual awareness during runtime.</td><td class="description"><div class="expandable">PHP, which powers a significant portion of the web, faces serious security challenges, particularly concerning remote code execution (RCE) vulnerabilities. This paper introduces a novel approach for preventing RCE attacks through a detailed, contextual filtering of system calls. By constructing an automaton for each PHP script, the authors map execution stages to specific subsets of system calls, enabling a more precise enforcement mechanism that is sensitive to the application&#39;s state. Their implementation demonstrates effectiveness against both known vulnerabilities and sophisticated attacks designed to mimic legitimate behavior, achieving a performance overhead of only 1%, which is significantly lower than previous methods.
+
+The proposed system leverages both static analysis and runtime monitoring to build a comprehensive model of valid system calls associated with specific execution contexts in PHP applications. This model is then enforced through kernel-level filtering, which ensures that only allowed operations are performed at each stage of a script&#39;s execution. The results indicate that this fine-grained approach not only blocks overtly malicious actions but also effectively detects stealthy mimicry attacks that traditional methods might overlook. By addressing the inherent limitations of existing system call filtering techniques, this work sets a new standard for enhancing the security of PHP applications.</div></td><td class="description"><ul class="future-work-list"><li>The authors suggest exploring the applicability of their filtering approach to other programming languages beyond PHP.</li><li>Future research could focus on refining the performance of the system under various workloads and configurations.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="remote code execution" style="background-color: hsl(57, 62%, 62%); color: #000;">remote code execution</span><span class="tag theme" data-theme="PHP security" style="background-color: hsl(246, 51%, 56%); color: #fff;">PHP security</span><span class="tag theme" data-theme="system call filtering" style="background-color: hsl(232, 57%, 57%); color: #fff;">system call filtering</span><span class="tag theme" data-theme="context-aware security" style="background-color: hsl(337, 62%, 57%); color: #fff;">context-aware security</span><span class="tag theme" data-theme="automated detection" style="background-color: hsl(317, 62%, 52%); color: #fff;">automated detection</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_4.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_4.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_4.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Generating the WEB-IDS23 Dataset</td><td class="description">This paper presents the WEB-IDS23 dataset, designed to support the development and evaluation of anomaly-based Network Intrusion Detection Systems (NIDS) by providing a diverse range of labeled network traffic samples.</td><td class="description"><div class="expandable">The WEB-IDS23 dataset was developed to address the challenges faced by anomaly-based Network Intrusion Detection Systems (NIDS), particularly the issues of insufficiently labeled data and the small sample sizes prevalent in existing datasets. The authors created a modular traffic generator capable of simulating a wide variety of benign and malicious traffic, producing over 12 million samples with 82 flow-level features and 22 fine-grained labels. This dataset includes several web attack types that are often underrepresented in other datasets, enabling better performance evaluation of NIDS and machine learning models used for intrusion detection.
+
+The traffic generator operates in both benign and attack modes, mimicking realistic user interactions alongside various attack scenarios across multiple protocols, such as HTTP(S), FTP, and SSH. By mixing benign traffic with malicious activities, the dataset enhances the realism of the scenarios encountered by NIDS, which is critical for accurate detection capabilities. The paper highlights the importance of having a large and diverse dataset to mitigate overfitting and ensure the robustness of machine learning models, ultimately contributing to the advancement of cybersecurity practices.
+
+In future work, the authors suggest recording unencrypted payloads to improve attack differentiation from benign traffic, as well as implementing mechanisms to trace back flows for enhanced detection of complex attack patterns. They also plan to release the traffic generator as open-source to facilitate further research in the field.</div></td><td class="description"><ul class="future-work-list"><li>Record unencrypted payloads to improve detection accuracy.</li><li>Implement mechanisms to trace back flows for better attack detection.</li><li>Release the traffic generator as open-source for community use.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="network intrusion detection" style="background-color: hsl(279, 64%, 59%); color: #fff;">network intrusion detection</span><span class="tag theme" data-theme="dataset generation" style="background-color: hsl(307, 52%, 57%); color: #fff;">dataset generation</span><span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span><span class="tag theme" data-theme="web security" style="background-color: hsl(234, 59%, 59%); color: #fff;">web security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_5.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_5.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_5.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Sourcerer: Channeling the void</td><td class="description">The paper presents Sourcerer, a novel sanitizer designed to detect type confusion vulnerabilities in C++ programs by performing runtime type checks on all cast operations, significantly improving type coverage.</td><td class="description"><div class="expandable">Type confusion vulnerabilities in C++ can lead to undefined behavior and security risks, primarily arising from the language&#39;s permissive type conversion mechanisms. Existing sanitizers have struggled with high runtime overhead or incomplete coverage, especially for casts from void pointers. This paper introduces Sourcerer, a new sanitizer that enhances type safety by embedding inline Runtime Type Information (RTTI) into all relevant classes, allowing it to detect all type confusions including those from unrelated types and void pointers with a modest average performance overhead of just 5.14%. 
+
+Sourcerer&#39;s architecture includes a two-stage pipeline: first, a static analysis phase identifies classes involved in cast operations, followed by a compilation phase that generates an executable with the necessary RTTI initialization and type checks. The authors evaluate Sourcerer against established benchmarks and conduct a fuzzing campaign on a real-world project, demonstrating its ability to catch previously undetected vulnerabilities. Their results show that Sourcerer significantly increases type coverage, detecting 8,507 million additional casts compared to previous sanitizers, thus addressing a critical gap in C++ type safety.</div></td><td class="description"><ul class="future-work-list"><li>Further optimization of runtime overhead is needed to enhance performance.</li><li>Exploring integration with other programming languages and environments could broaden the applicability of Sourcerer.</li><li>Investigating additional features for handling complex C++ idioms and patterns may improve its effectiveness.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="C++ security" style="background-color: hsl(70, 55%, 60%); color: #fff;">C++ security</span><span class="tag theme" data-theme="type safety" style="background-color: hsl(225, 50%, 50%); color: #fff;">type safety</span><span class="tag theme" data-theme="runtime type information" style="background-color: hsl(118, 63%, 63%); color: #000;">runtime type information</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_6.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_6.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_6.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">CodeGrafter: Unifying Source and Binary Graphs for Robust Vulnerability Detection</td><td class="description">CodeGrafter is a novel framework that integrates source and binary-level features into a unified Cross-Domain Code Property Graph for enhanced vulnerability detection in C/C++ programs.</td><td class="description"><div class="expandable">CodeGrafter introduces a new approach for detecting vulnerabilities in compiled C/C++ programs by integrating source and binary code features into a unified Cross-Domain Code Property Graph (CDCPG). This novel framework aims to address the limitations of traditional vulnerability detection methods that operate either at the source or binary level, which often results in high false positive and negative rates. By leveraging the semantic insights from both domains, CodeGrafter enhances the ability to uncover vulnerabilities influenced by compiler-specific decisions and constructs, thus providing a more accurate and efficient analysis for security auditors.
+
+The framework employs Graph Neural Networks (GNNs) to streamline the detection process, significantly reducing the manual effort typically required for auditing. Evaluations conducted on several real-world applications demonstrated CodeGrafter&#39;s superior performance, achieving an F1-score of 0.937 and a recall of 0.945, surpassing traditional approaches that rely solely on either source or binary representations. Through its innovative use of combined semantic data, CodeGrafter not only improves vulnerability detection accuracy but also enhances the scalability of the auditing process, making it a critical tool in the ongoing effort to secure complex software systems.</div></td><td class="description"><ul class="future-work-list"><li>Exploring the application of CodeGrafter to additional programming languages beyond C/C++.</li><li>Investigating the incorporation of more advanced machine learning techniques for improved vulnerability classification.</li><li>Enhancing the framework to support real-time vulnerability detection in dynamic environments.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="vulnerability detection" style="background-color: hsl(126, 51%, 56%); color: #fff;">vulnerability detection</span><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="graph neural networks" style="background-color: hsl(139, 64%, 54%); color: #fff;">graph neural networks</span><span class="tag theme" data-theme="source and binary code integration" style="background-color: hsl(203, 48%, 58%); color: #fff;">source and binary code integration</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_7.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_7.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_7.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">SyzForge: An Automated System Call Speciﬁcation Generation Process for Eﬃcient Kernel Fuzzing</td><td class="description">This paper presents SyzForge, an automated framework for generating syscall specifications to enhance kernel fuzzing and improve vulnerability detection in the Linux kernel.</td><td class="description"><div class="expandable">The paper introduces SyzForge, a novel automated framework designed to generate precise syscall specifications for Linux kernel drivers, addressing the limitations of manual specification crafting that often fails to keep pace with the kernel&#39;s dynamic nature. By integrating static analysis, symbolic execution, fuzzing, and large language model (LLM) refinement, SyzForge enhances the fuzz testing process, achieving a 13.3% increase in code coverage compared to existing tools like Syzkaller. The framework identifies previously unreported vulnerabilities, demonstrating its practical impact on kernel security.</div></td><td class="description"><ul class="future-work-list"><li>Improvement of the LLM reliability for generating accurate specifications.</li><li>Exploration of additional methods to enhance the efficiency of the specification generation process.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated fuzzing" style="background-color: hsl(216, 61%, 56%); color: #fff;">automated fuzzing</span><span class="tag theme" data-theme="kernel security" style="background-color: hsl(163, 48%, 63%); color: #000;">kernel security</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="symbolic execution" style="background-color: hsl(339, 64%, 59%); color: #fff;">symbolic execution</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97620-9_9.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97620-9_9.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97620-9_9.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Reverse-Engineering the Address Translation Caches</td><td class="description">This paper explores the reverse engineering of address translation caches in Intel processors to enhance the understanding of microarchitectural side-channel attacks.</td><td class="description"><div class="expandable">The paper delves into the intricacies of the address translation process within modern CPUs, focusing specifically on the memory management unit (MMU) and its role in microarchitectural side-channel attacks. The authors expand upon existing reverse engineering techniques to improve the understanding of translation caches, which are crucial for the efficiency of address translation but often lack detailed documentation from vendors. By developing an automated tool named Talbot, the authors are able to investigate multiple generations of Intel processors and reveal new insights, including previously undocumented cache replacement policies and structures.
+
+Through their experiments, the authors demonstrate the effectiveness of their adapted TLB desynchronization technique, allowing them to achieve more precise and consistent results in identifying cache properties. Their findings correct prior misunderstandings about the structure and behavior of translation caches, emphasizing the significance of these components in enhancing attack precision. Ultimately, the work contributes to the broader field of cybersecurity by illuminating the vulnerabilities associated with the address translation process and providing a foundation for future research into novel attack strategies and defenses.</div></td><td class="description"><ul class="future-work-list"><li>Future work can build upon the properties exposed in this study to construct novel attacks or improve the performance of existing ones.</li><li>The authors suggest enhancing the Talbot tool&#39;s capabilities for reverse engineering more complex replacement policies.</li><li>Further investigation into translation caches on other existing and future microarchitectures is indicated as a potential direction.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="microarchitectural vulnerabilities" style="background-color: hsl(100, 45%, 60%); color: #fff;">microarchitectural vulnerabilities</span><span class="tag theme" data-theme="reverse engineering" style="background-color: hsl(28, 53%, 63%); color: #000;">reverse engineering</span><span class="tag theme" data-theme="cybersecurity" style="background-color: hsl(254, 59%, 64%); color: #000;">cybersecurity</span><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_1.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_1.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_1.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Towards Explainable Drift Detection and Early Retrain in ML-Based Malware Detection Pipelines</td><td class="description">This paper addresses the challenge of explainable drift detection in machine learning-based malware detection, proposing a nuanced approach to identify and react to changes in malware characteristics.</td><td class="description"><div class="expandable">The paper discusses the significant challenge in machine learning-based malware detection: maintaining high detection rates while adapting to the evolving nature of malware samples. Current drift detection algorithms fail to provide explanations for the observed drifts, limiting their effectiveness in understanding the evolution of threats and optimizing retraining processes. The authors propose a new framework that separates the understanding of classification frontiers and the concepts of malware and goodware, facilitating a more transparent and effective detection system. By implementing meta-classifiers to observe and explain concept drift, the proposed solution enhances the functionality of existing malware detection pipelines.
+
+Through extensive experimentation on the DREBIN and AndroZoo datasets, the authors demonstrate that their approach not only identifies drift points but also explains them, thus allowing for timely and efficient retraining of classifiers. The results show that the proposed explainable drift detection system can significantly improve detection rates and reduce the need for frequent retraining, ultimately leading to better performance and resource management in malware detection systems. This work represents a meaningful advancement in the field of automated malware detection, emphasizing the importance of explainability in machine learning applications.</div></td><td class="description"><ul class="future-work-list"><li>Developing Type 3 drift detectors for broader applications beyond malware detection.</li><li>Exploring the integration of additional data sources to enhance drift detection capabilities.</li><li>Investigating the scalability of the proposed framework across diverse datasets and malware types.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="explainable AI" style="background-color: hsl(153, 58%, 53%); color: #fff;">explainable AI</span><span class="tag theme" data-theme="malware detection" style="background-color: hsl(278, 63%, 58%); color: #fff;">malware detection</span><span class="tag theme" data-theme="concept drift" style="background-color: hsl(322, 47%, 57%); color: #fff;">concept drift</span><span class="tag theme" data-theme="automated retraining" style="background-color: hsl(179, 64%, 64%); color: #000;">automated retraining</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_11.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_11.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_11.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Taming the Linux Memory Allocator for Rapid Prototyping</td><td class="description">This paper introduces MAPAlloc, a flexible framework for rapid prototyping of memory allocation-based defenses against microarchitectural attacks on Linux systems, supporting various architectures.</td><td class="description"><div class="expandable">The paper presents MAPAlloc (Microarchitectural Prototyping Allocator), a novel framework designed to facilitate the rapid prototyping of defenses and attacks that leverage memory allocation on Linux systems. MAPAlloc provides a domain-specific language (DSL) that allows researchers to impose precise constraints on physical memory allocation, enabling quick implementation of mitigation strategies such as page coloring. By supporting multiple architectures, including x86, ARMv8, and RISC-V, MAPAlloc simplifies the process of testing and evaluating security measures against microarchitectural threats, which have become increasingly prevalent in modern computing environments.
+
+The authors demonstrate MAPAlloc&#39;s capabilities through various case studies that illustrate its effectiveness in preventing known microarchitectural attacks, including Prime+Probe and DRAMA. They propose innovative techniques like layered page coloring, which enhances isolation by increasing the number of cache colors available from 32 to 256 on modern CPUs. The flexibility of MAPAlloc not only aids in developing defenses but also streamlines the process of prototyping attacks, thereby bridging the gap between theoretical security concepts and practical implementation for researchers in the field of microarchitectural security.</div></td><td class="description"><ul class="future-work-list"><li>Integrating support for arbitrary memory constraints into hypervisors to apply constraints to entire virtual machines.</li><li>Extending the DSL capabilities to support stateful constraints for more complex memory allocation scenarios.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="microarchitectural attacks" style="background-color: hsl(194, 59%, 64%); color: #000;">microarchitectural attacks</span><span class="tag theme" data-theme="memory allocation" style="background-color: hsl(270, 55%, 50%); color: #fff;">memory allocation</span><span class="tag theme" data-theme="page coloring" style="background-color: hsl(126, 51%, 56%); color: #fff;">page coloring</span><span class="tag theme" data-theme="operating system security" style="background-color: hsl(356, 61%, 61%); color: #000;">operating system security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_12.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_12.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_12.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Linux Hurt Itself in Its Confusion! Exploiting Out-of-Memory Killer for Confusion Attacks via Heuristic Manipulation</td><td class="description">This paper introduces OOM Confusion Attacks, a novel type of Denial of Service attack that exploits the Linux kernel&#39;s Out-of-Memory killer to terminate critical processes rather than attacker processes, potentially destabilizing systems.</td><td class="description"><div class="expandable">The paper discusses the vulnerabilities of the Linux kernel&#39;s Out-of-Memory (OOM) killer, which is designed to maintain system stability by terminating processes when memory resources are depleted. It presents a new class of Denial of Service (DoS) attacks known as OOM Confusion Attacks, wherein an attacker manipulates memory allocation through numerous unprivileged processes to force the OOM killer to terminate essential services instead of the attacker&#39;s processes. The authors quantify the resource constraints necessary for these attacks and evaluate their feasibility on standard Linux configurations used by cloud providers.
+
+The authors demonstrate that the OOM killer&#39;s heuristic rules can be exploited to disrupt critical services, leading to a denial of service that is hard to recover from. They also investigate the implications of race conditions that can be leveraged to block the recovery of killed services. To mitigate these threats, the paper proposes strategies to enhance the resilience of applications against such exploitation, ultimately aiming to strengthen the security posture of systems susceptible to OOM Confusion Attacks.</div></td><td class="description"><ul class="future-work-list"><li>Further research could explore additional mitigations for OOM Confusion Attacks.</li><li>Future studies may investigate the implications of these attacks in other operating systems.</li><li>The paper suggests evaluating the effectiveness of proposed mitigation strategies in real-world environments.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="Denial of Service attacks" style="background-color: hsl(299, 64%, 64%); color: #000;">Denial of Service attacks</span><span class="tag theme" data-theme="memory exhaustion attacks" style="background-color: hsl(39, 64%, 59%); color: #fff;">memory exhaustion attacks</span><span class="tag theme" data-theme="Linux kernel security" style="background-color: hsl(16, 61%, 51%); color: #fff;">Linux kernel security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_13.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_13.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_13.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Overlapping Data in Network Protocols: Bridging OS and NIDS Reassembly Gap</td><td class="description">This paper examines the vulnerabilities in the reassembly policies of Network Intrusion Detection Systems (NIDS) regarding overlapping data in network protocols, specifically focusing on IPv4, IPv6, and TCP.</td><td class="description"><div class="expandable">The paper discusses how the chunking mechanism in Internet protocols can lead to overlapping data segments, which may be exploited by attackers if Network Intrusion Detection Systems (NIDS) do not align their reassembly policies with those of the operating systems (OS) they monitor. It highlights the importance of consistent reassembly to ensure security, as discrepancies can lead to successful evasion and insertion attacks. The authors extend existing attack characterizations and propose a new modeling approach using Allen&#39;s interval algebra to analyze the reassembly behaviors of various OSes and NIDSes.
+
+The findings reveal that while some OS reassembly policies have evolved, NIDSes continue to exhibit vulnerabilities when processing overlapping data due to inconsistent reassembly strategies. The paper underscores the need for NIDS to adapt their policies to match modern OS behaviors and provides recommendations for improving the robustness of network security against such attacks. The authors also discuss the importance of exhaustive testing of reassembly policies to better understand and mitigate the risks associated with overlapping data in network communications.</div></td><td class="description"><ul class="future-work-list"><li>Future work includes analyzing the impact of NIC offloading on NIDS and OS reassembly policies.</li><li>The authors plan to extend testing contexts for overlap cases by adding extra segments to evaluate reassembly behaviors.</li><li>There is an intention to investigate the reassembly policies of middleboxes that affect overlap processing.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="network security" style="background-color: hsl(164, 49%, 64%); color: #000;">network security</span><span class="tag theme" data-theme="intrusion detection" style="background-color: hsl(81, 46%, 56%); color: #fff;">intrusion detection</span><span class="tag theme" data-theme="data integrity" style="background-color: hsl(5, 50%, 55%); color: #fff;">data integrity</span><span class="tag theme" data-theme="protocol vulnerabilities" style="background-color: hsl(191, 56%, 61%); color: #000;">protocol vulnerabilities</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_16.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_16.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_16.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">PackHero: A Scalable Graph-Based Approach for Efficient Packer Identification</td><td class="description">This paper introduces PackHero, a novel methodology for identifying packers in malware using a scalable graph-based approach that leverages Call Graphs and Graph Neural Networks.</td><td class="description"><div class="expandable">PackHero is designed to address the challenges posed by traditional packer identification methods, which often rely on signature-based techniques or require extensive training data for machine learning models. These existing methods struggle with dynamic evasive behaviors employed by modern malware, which can undermine both static and dynamic analysis. In contrast, PackHero utilizes a graph-based approach, employing Call Graphs extracted from packed binaries to identify the packer used. By doing so, it achieves high accuracy and adaptability with minimal samples, demonstrating significant improvements over existing tools, particularly in scenarios involving virtualization-based packers.
+
+The methodology involves extracting Call Graphs, applying a Graph Matching Network (GMN) for similarity evaluation, and implementing a clustering technique to streamline the identification process. The experimental results reveal that PackHero can effectively identify packers with just ten samples per packer, achieving an impressive macro-average F1-score of 93.7%. Furthermore, it shows remarkable scalability, allowing for the integration of new packers without the need for extensive retraining, thereby maintaining performance efficiency as the number of recognized packers increases. Overall, PackHero represents a significant advancement in the field of malware analysis, combining the strengths of both static and machine learning techniques.</div></td><td class="description"><ul class="future-work-list"><li>Future research could explore the integration of dynamic analysis techniques to complement PackHero&#39;s static approach.</li><li>Further enhancements could be made to improve the accuracy of packer identification for newly emerging packers.</li><li>Investigating the adaptability of PackHero in real-world scenarios with diverse malware samples would be beneficial.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="malware analysis" style="background-color: hsl(81, 46%, 56%); color: #fff;">malware analysis</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="graph-based detection" style="background-color: hsl(243, 48%, 53%); color: #fff;">graph-based detection</span><span class="tag theme" data-theme="machine learning in security" style="background-color: hsl(178, 63%, 63%); color: #000;">machine learning in security</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_17.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_17.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_17.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">A History of G REED: Practical Symbolic Execution for Ethereum Smart Contracts</td><td class="description">The paper introduces Greed, a versatile symbolic execution framework designed for analyzing Ethereum smart contracts, enhancing vulnerability detection while addressing limitations of existing tools.</td><td class="description"><div class="expandable">Smart contracts have revolutionized blockchain applications but pose significant risks due to vulnerabilities that can lead to substantial financial losses. The paper presents Greed, a new symbolic execution framework that systematically explores execution paths of Ethereum smart contracts, enabling the detection of both known and novel vulnerabilities. Unlike existing tools that are tailored to specific vulnerability patterns, Greed offers a modular design, allowing security researchers to rapidly prototype new analyses and effectively analyze complex smart contracts.
+
+The authors demonstrate Greed&#39;s effectiveness by showcasing its superiority in exploring code paths—achieving 84% coverage of CALL statements, significantly more than existing tools that average around 9%. Additionally, a novel analysis implemented in Greed identified 390 previously unknown vulnerable contracts across Ethereum and Binance Smart Chain. By making Greed open-source, the authors aim to foster further research and development in smart contract security, ultimately contributing to a more secure blockchain ecosystem.</div></td><td class="description"><ul class="future-work-list"><li>Addressing the limitations in modeling gas costs and cross-contract interactions.</li><li>Implementing more sophisticated analyses that are currently unavailable in Greed.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="smart contract security" style="background-color: hsl(19, 64%, 54%); color: #fff;">smart contract security</span><span class="tag theme" data-theme="symbolic execution" style="background-color: hsl(339, 64%, 59%); color: #fff;">symbolic execution</span><span class="tag theme" data-theme="blockchain security" style="background-color: hsl(261, 46%, 56%); color: #fff;">blockchain security</span><span class="tag theme" data-theme="automated vulnerability detection" style="background-color: hsl(274, 59%, 54%); color: #fff;">automated vulnerability detection</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_18.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_18.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_18.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">FAULTLESS: Flexible and Transparent Fault Protection for Superscalar RISC-V Processors</td><td class="description">This paper presents &#39;Faultless&#39;, a novel fault protection mechanism for superscalar RISC-V processors that offers flexible performance and minimal hardware overhead through hardware-based instruction duplication.</td><td class="description"><div class="expandable">The paper introduces &#39;Faultless&#39;, a fault protection system designed for superscalar RISC-V processors, addressing the significant threat posed by fault injection (FI) attacks on the reliability and security of devices. Traditional methods of fault protection often involve substantial hardware overhead or require recompilation of existing code, leading to compatibility issues. In contrast, Faultless aims to provide a flexible and efficient alternative by utilizing the existing redundancy in superscalar processors, allowing developers to toggle fault protection during runtime without incurring significant performance penalties.
+
+The authors demonstrate the effectiveness of their design through a prototype based on the VeeR EH1 RISC-V core, showing that their approach can achieve a performance overhead of 32% to 79% depending on hardware configuration, while only increasing hardware utilization by 3.5% for LUTs and 2.76% for flip-flops. Additionally, the paper details the comprehensive security analysis of the design, highlighting its ability to protect against a range of fault attacks. The authors suggest that future work could involve implementing the Faultless design on larger, out-of-order cores and exploring the implications of adding data caches to the system.</div></td><td class="description"><ul class="future-work-list"><li>Implement and evaluate the Faultless design on a larger, out-of-order core.</li><li>Examine the performance implications of adding a data cache to the memory hierarchy.</li><li>Scale up the duplication to triplication to study the potential for latency-free fault correction.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="fault protection" style="background-color: hsl(129, 54%, 59%); color: #fff;">fault protection</span><span class="tag theme" data-theme="RISC-V architecture" style="background-color: hsl(294, 59%, 59%); color: #fff;">RISC-V architecture</span><span class="tag theme" data-theme="hardware redundancy" style="background-color: hsl(89, 54%, 64%); color: #000;">hardware redundancy</span><span class="tag theme" data-theme="superscalar processors" style="background-color: hsl(130, 55%, 60%); color: #fff;">superscalar processors</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_2.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_2.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_2.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">InferONNX: Practical and Privacy-Preserving Machine Learning Inference Using Trusted Execution Environments</td><td class="description">This paper introduces InferONNX, a lightweight machine learning inference service designed to operate within Intel SGX, addressing privacy concerns associated with deploying machine learning models on untrusted devices.</td><td class="description"><div class="expandable">InferONNX is presented as a solution to the privacy and security challenges faced by machine learning models when deployed on untrusted devices. The paper highlights the importance of protecting both proprietary models and sensitive data during inference processes. To achieve this, InferONNX utilizes Trusted Execution Environments (TEEs), specifically Intel SGX, which provide hardware-based protection for data in use, thus ensuring confidentiality. The authors detail the design and implementation of the service, emphasizing its lightweight nature and compatibility with the ONNX model format, which is known for its high-level semantics and minimal memory footprint.
+
+The paper further addresses the limitations of Intel SGX, particularly its restricted memory capacity, by employing model partitioning strategies to manage memory usage effectively. By partitioning models and utilizing a compact runtime, InferONNX enhances inference speed and efficiency, achieving performance improvements of 1.5x to 4x compared to full model execution. Through a thorough evaluation, the authors demonstrate the system&#39;s capability to handle various model sizes securely while maintaining a balance between performance and privacy, making it a significant contribution to the field of privacy-preserving machine learning.</div></td><td class="description"><ul class="future-work-list"><li>Exploration of intra-operator partitioning to address cases where individual operators exceed the capacity of the EPC.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="confidential computing" style="background-color: hsl(187, 52%, 57%); color: #fff;">confidential computing</span><span class="tag theme" data-theme="machine learning" style="background-color: hsl(294, 59%, 59%); color: #fff;">machine learning</span><span class="tag theme" data-theme="trusted execution environments" style="background-color: hsl(343, 48%, 63%); color: #000;">trusted execution environments</span><span class="tag theme" data-theme="privacy-preserving techniques" style="background-color: hsl(273, 58%, 53%); color: #fff;">privacy-preserving techniques</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_3.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_3.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_3.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Hiding in Plain Sight: On the Robustness of AI-Generated Code Detection</td><td class="description">This paper investigates the effectiveness and robustness of AI code detection classifiers in distinguishing between human-written and AI-generated code.</td><td class="description"><div class="expandable">The paper addresses the growing use of AI code assistants, such as GitHub Copilot, which, while beneficial, raise significant security concerns due to their potential to generate insecure or incorrect code. The authors operationalize various AI code identification tools to evaluate their baseline performance on datasets produced by state-of-the-art models. Their findings reveal that existing classifiers often struggle with robustness, exhibiting limited accuracy in real-world scenarios due to variations in training sets and prompting strategies.
+
+Through a series of experiments, the authors assess the performance of multiple AI code detectors, identifying key factors that affect their effectiveness. Their results indicate that zero-shot detectors show significant drops in accuracy compared to previously published results, while classifiers trained on specific datasets can achieve higher accuracy but may fail when faced with code from different problem domains. The paper highlights the need for improved methods for detecting AI-generated code to enhance software supply chain security and suggests that current tools may not be sufficient for practical deployment without further development.</div></td><td class="description"><ul class="future-work-list"><li>Future work should explore the performance of AI code detection tools in mixed-authorship scenarios where human and AI-generated code are intertwined.</li><li>Further research is needed to evaluate the robustness of detection methods across various programming languages beyond Python.</li><li>Investigating alternative solutions, such as watermarking AI-generated code, could improve detection capabilities.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="AI in security" style="background-color: hsl(273, 58%, 53%); color: #fff;">AI in security</span><span class="tag theme" data-theme="code security" style="background-color: hsl(272, 57%, 52%); color: #fff;">code security</span><span class="tag theme" data-theme="supply chain security" style="background-color: hsl(169, 54%, 54%); color: #fff;">supply chain security</span><span class="tag theme" data-theme="automated detection" style="background-color: hsl(317, 62%, 52%); color: #fff;">automated detection</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_4.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_4.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_4.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">FlexGE: Towards Secure and Flexible Model Partition for Deep Neural Networks</td><td class="description">The paper presents FlexGE, a novel system for secure and flexible model partitioning of deep neural networks (DNNs) between Trusted Execution Environments (TEE) and GPUs, allowing user-defined configurations to optimize security and performance.</td><td class="description"><div class="expandable">In this paper, the authors introduce FlexGE, a flexible model inference system designed to enhance the security of deep neural networks (DNNs) deployed in the cloud. Existing solutions typically employ a static model partitioning strategy that limits flexibility and optimization in terms of security and performance trade-offs. FlexGE addresses this limitation by allowing users to define customizable partition policies and protection primitives at build time, enabling tailored configurations that adapt to specific use cases. By leveraging a combination of TEE and GPU resources, FlexGE facilitates the secure delegation of computations and enhances the overall robustness of DNN models against potential attacks.
+
+The evaluation of FlexGE demonstrates its ability to outperform existing state-of-the-art solutions in both security and performance metrics. The authors showcase the system&#39;s flexibility through extensive experiments with various DNN architectures, illustrating how it can navigate the complex configuration space of model partitioning. The incorporation of techniques like Configuration Space Layout Randomization (CSLR) further strengthens the security framework, ensuring that the model remains resilient against adversarial threats. Overall, FlexGE presents a significant advancement in the secure deployment of deep learning models in untrusted environments, highlighting the importance of adaptable security measures in modern AI applications.</div></td><td class="description"><ul class="future-work-list"><li>Further exploration of optimizing configuration selection algorithms for enhanced user experience.</li><li>Investigation into additional protection mechanisms that can be integrated within the FlexGE framework.</li><li>Expanding FlexGE to support a wider range of DNN architectures and use cases.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="cloud security" style="background-color: hsl(88, 53%, 63%); color: #000;">cloud security</span><span class="tag theme" data-theme="automated red teaming" style="background-color: hsl(130, 55%, 60%); color: #fff;">automated red teaming</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_7.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_7.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_7.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">More Than You Signed Up For: Exposing Gaps in the Validation of Android’s App Signing</td><td class="description">This paper analyzes the vulnerabilities in Android&#39;s app signing mechanism, highlighting how attackers can exploit design flaws to embed malicious payloads without detection.</td><td class="description"><div class="expandable">In this study, the authors investigate the security implications of Android&#39;s app signing mechanism, a vital component designed to ensure the integrity and authenticity of applications. The paper reveals that despite improvements in the signing process across versions, significant logical gaps remain that can be exploited by attackers. Specifically, the authors demonstrate how the APK signing block, which is supposed to secure app signatures, is not adequately verified, allowing for the insertion of malicious payloads without triggering any security alerts during verification. Through a series of experiments, they illustrate various methods of payload injection and the successful evasion of detection mechanisms, even through well-known app distribution platforms.
+
+The research highlights the ongoing challenges in maintaining app integrity within the Android ecosystem, emphasizing the need for stricter validation processes in app signing. By exposing these vulnerabilities, the authors contribute to a deeper understanding of the security landscape surrounding mobile applications and offer insights into potential areas for improvement. Ultimately, their work calls for enhanced scrutiny of the app signing mechanisms to prevent malicious exploitation and to ensure user trust in app authenticity.</div></td><td class="description"><ul class="future-work-list"><li>Further research is needed to explore additional vulnerabilities in the app signing process.</li><li>Future studies could investigate the effectiveness of proposed remediation strategies.</li><li>The implications of these vulnerabilities on user trust and security should be analyzed.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="Android security" style="background-color: hsl(80, 45%, 55%); color: #fff;">Android security</span><span class="tag theme" data-theme="application security" style="background-color: hsl(271, 56%, 51%); color: #fff;">application security</span><span class="tag theme" data-theme="malware detection" style="background-color: hsl(278, 63%, 58%); color: #fff;">malware detection</span><span class="tag theme" data-theme="vulnerability analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">vulnerability analysis</span><span class="tag theme" data-theme="app signing mechanisms" style="background-color: hsl(219, 64%, 59%); color: #fff;">app signing mechanisms</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_8.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_8.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_8.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">An Empirical Study of Multi-language Security Patches in Open Source Software</td><td class="description">This paper presents an empirical analysis of security patches in multi-language open-source software, highlighting the complexities and vulnerabilities arising from cross-language interactions.</td><td class="description"><div class="expandable">The study addresses the challenges posed by vulnerabilities in software repositories that utilize multiple programming languages, particularly in how these languages interact and the implications for security patches. By analyzing a dataset of multi-language security patches collected from the MITRE corporation, the authors explore trends in language combinations, assess vulnerability proneness, and classify patching behaviors based on the types of language interactions. The findings reveal that multi-language security patches are generally more complex than single-language ones, often exhibiting a higher propensity for certain types of vulnerabilities, such as SQL injection and cross-site scripting (XSS). Furthermore, the authors introduce a taxonomy of common fixing patterns that can inform automated program repair efforts.</div></td><td class="description"><ul class="future-work-list"><li>Further research is needed to develop automated tools that effectively analyze multi-language programs.</li><li>Investigate the integration of large language models (LLMs) in understanding and patching multi-language vulnerabilities.</li><li>Encourage the community to explore the released dataset for deeper insights into multi-language security patch development.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="multi-language security" style="background-color: hsl(233, 58%, 58%); color: #fff;">multi-language security</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="security vulnerabilities" style="background-color: hsl(102, 47%, 62%); color: #000;">security vulnerabilities</span><span class="tag theme" data-theme="automated program repair" style="background-color: hsl(255, 60%, 50%); color: #fff;">automated program repair</span></div></td></tr>
+<tr><td class="rating-cell">
+			<div class="star-rating" data-filename="978-3-031-97623-0_9.pdf">
+				<span class="star" data-rating="1">★</span>
+				<span class="star" data-rating="2">★</span>
+				<span class="star" data-rating="3">★</span>
+			</div>
+		</td><td class="file-name-cell" title="978-3-031-97623-0_9.pdf"><svg class="clipboard-icon" data-filename="978-3-031-97623-0_9.pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></td><td class="paper-title">Red Light for Security: Uncovering Auto Feature Check and Access Control Gaps in AAOS</td><td class="description">This paper investigates the security of the Android Automotive Operating System (AAOS) by evaluating access control and auto feature checks using an automated tool called AutoAcRaptor.</td><td class="description"><div class="expandable">The Android Automotive Operating System (AAOS) has gained traction within the automotive industry as a fully integrated operating system designed specifically for vehicles. This paper represents the first systematic investigation into the security of the AAOS framework, focusing on auto feature checks and access control anomalies. The authors developed AutoAcRaptor, an automated analysis tool that employs static analysis to identify entry points in AAOS, generate specifications for access control, and analyze these for potential security risks. By evaluating ten different AAOS ROMs from various automakers, the study identified an average of 23 anomalies per ROM, highlighting significant gaps in the security specifications used in the AAOS framework.</div></td><td class="description"><ul class="future-work-list"><li>Further research is needed to understand the long-term implications of identified security anomalies in AAOS.</li><li>Future studies should explore the effectiveness of proposed mitigations for the access control and feature check gaps.</li><li>The development of more robust security specifications for AAOS could enhance overall vehicle security.</li></ul></td><td><div class="tags"><span class="tag theme" data-theme="automated analysis" style="background-color: hsl(38, 63%, 58%); color: #fff;">automated analysis</span><span class="tag theme" data-theme="access control" style="background-color: hsl(127, 52%, 57%); color: #fff;">access control</span><span class="tag theme" data-theme="static code analysis" style="background-color: hsl(104, 49%, 64%); color: #000;">static code analysis</span><span class="tag theme" data-theme="automotive security" style="background-color: hsl(179, 64%, 64%); color: #000;">automotive security</span></div></td></tr>
+
+            </tbody>
+        </table>
+        <div id="noResults" class="no-results" style="display: none;">
+            No papers match your search criteria.
+        </div>
+    </div>
+
+    <script>
+        // State
+        const searchBox = document.getElementById('searchBox');
+        const tableBody = document.getElementById('tableBody');
+        const rows = Array.from(tableBody.getElementsByTagName('tr'));
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+        const filterBadge = document.getElementById('filterBadge');
+        const reviewedOnlyToggle = document.getElementById('reviewedOnlyToggle');
+        let activeThemeFilter = null;
+
+        // Combined filter function
+        function applyFilters() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const reviewedOnly = reviewedOnlyToggle.checked;
+            let visible = 0;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                let matchesSearch = searchTerm === '' || text.includes(searchTerm);
+                let matchesTheme = true;
+                let matchesReview = true;
+
+                // Check theme filter if active
+                if (activeThemeFilter) {
+                    const themeTags = row.querySelectorAll('.tag.theme');
+                    matchesTheme = Array.from(themeTags).some(tag =>
+                        tag.dataset.theme === activeThemeFilter
+                    );
+                }
+
+                // Check rating filter if active
+                if (reviewedOnly) {
+                    const starRating = row.querySelector('.star-rating');
+                    const rating = starRating ? getCurrentRating(starRating) : 0;
+                    matchesReview = rating > 0;
+                }
+
+                if (matchesSearch && matchesTheme && matchesReview) {
+                    row.style.display = '';
+                    visible++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            visibleCount.textContent = visible;
+            noResults.style.display = visible === 0 ? 'block' : 'none';
+            tableBody.style.display = visible === 0 ? 'none' : '';
+        }
+
+        // Search functionality
+        searchBox.addEventListener('input', applyFilters);
+
+        // Reviewed only toggle
+        reviewedOnlyToggle.addEventListener('change', applyFilters);
+
+        // Theme filter functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('theme') && e.target.dataset.theme) {
+                const clickedTheme = e.target.dataset.theme;
+
+                // Toggle filter
+                if (activeThemeFilter === clickedTheme) {
+                    // Clear filter
+                    activeThemeFilter = null;
+                    filterBadge.style.display = 'none';
+                    document.querySelectorAll('.tag.theme').forEach(tag => {
+                        tag.classList.remove('active');
+                    });
+                } else {
+                    // Set new filter
+                    activeThemeFilter = clickedTheme;
+                    filterBadge.textContent = 'Theme: ' + clickedTheme;
+                    filterBadge.style.display = 'inline-block';
+
+                    // Copy the color from the clicked tag
+                    const bgColor = window.getComputedStyle(e.target).backgroundColor;
+                    const textColor = window.getComputedStyle(e.target).color;
+                    filterBadge.style.backgroundColor = bgColor;
+                    filterBadge.style.color = textColor;
+
+                    // Update active states
+                    document.querySelectorAll('.tag.theme').forEach(tag => {
+                        if (tag.dataset.theme === clickedTheme) {
+                            tag.classList.add('active');
+                        } else {
+                            tag.classList.remove('active');
+                        }
+                    });
+                }
+
+                applyFilters();
+            }
+        });
+
+        // Clear filter badge on click
+        filterBadge.addEventListener('click', function() {
+            activeThemeFilter = null;
+            filterBadge.style.display = 'none';
+            document.querySelectorAll('.tag.theme').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            applyFilters();
+        });
+
+        // Sort functionality
+        let currentSort = { column: null, ascending: true };
+
+        document.querySelectorAll('th').forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.dataset.column;
+                const columnIndex = Array.from(this.parentElement.children).indexOf(this);
+
+                // Toggle sort direction
+                if (currentSort.column === column) {
+                    currentSort.ascending = !currentSort.ascending;
+                } else {
+                    currentSort.column = column;
+                    currentSort.ascending = true;
+                }
+
+                // Update header styles
+                document.querySelectorAll('th').forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                });
+                this.classList.add(currentSort.ascending ? 'sort-asc' : 'sort-desc');
+
+                // Sort rows
+                rows.sort((a, b) => {
+                    let comparison;
+
+                    // Special handling for rating column (star ratings)
+                    if (column === 'rating') {
+                        const aStarRating = a.children[columnIndex].querySelector('.star-rating');
+                        const bStarRating = b.children[columnIndex].querySelector('.star-rating');
+                        const aRating = aStarRating ? getCurrentRating(aStarRating) : 0;
+                        const bRating = bStarRating ? getCurrentRating(bStarRating) : 0;
+                        comparison = aRating - bRating;
+                    } else {
+                        const aText = a.children[columnIndex].textContent.trim();
+                        const bText = b.children[columnIndex].textContent.trim();
+                        comparison = aText.localeCompare(bText);
+                    }
+
+                    return currentSort.ascending ? comparison : -comparison;
+                });
+
+                // Re-append sorted rows
+                rows.forEach(row => tableBody.appendChild(row));
+            });
+        });
+
+        // Expandable long descriptions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('expandable') || e.target.closest('.expandable')) {
+                const expandable = e.target.classList.contains('expandable') ? e.target : e.target.closest('.expandable');
+                expandable.classList.toggle('expanded');
+            }
+        });
+
+        // Column resizing
+        let isResizing = false;
+        let currentResizer = null;
+        let currentTh = null;
+        let startX = 0;
+        let startWidth = 0;
+
+        document.querySelectorAll('.resizer').forEach(resizer => {
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                isResizing = true;
+                currentResizer = this;
+                currentTh = this.parentElement;
+                startX = e.pageX;
+                startWidth = currentTh.offsetWidth;
+
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+
+            const diff = e.pageX - startX;
+            const newWidth = startWidth + diff;
+
+            // Minimum width of 100px
+            if (newWidth >= 100) {
+                currentTh.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isResizing) {
+                isResizing = false;
+                currentResizer = null;
+                currentTh = null;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+
+        // Star rating persistence
+        const STORAGE_KEY = 'paper_rating_status';
+
+        // Load star ratings from localStorage
+        function loadRatingStates() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return;
+
+            try {
+                const ratingStates = JSON.parse(saved);
+                document.querySelectorAll('.star-rating').forEach(starRating => {
+                    const filename = starRating.dataset.filename;
+                    const rating = ratingStates[filename];
+                    if (rating) {
+                        updateStarDisplay(starRating, rating);
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load rating states:', e);
+            }
+        }
+
+        // Save star rating to localStorage
+        function saveRatingState(filename, rating) {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                const ratingStates = saved ? JSON.parse(saved) : {};
+
+                if (rating > 0) {
+                    ratingStates[filename] = rating;
+                } else {
+                    delete ratingStates[filename];
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(ratingStates));
+            } catch (e) {
+                console.error('Failed to save rating state:', e);
+            }
+        }
+
+        // Update star display based on rating
+        function updateStarDisplay(starRating, rating) {
+            const stars = starRating.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Get current rating for a star rating element
+        function getCurrentRating(starRating) {
+            const activeStars = starRating.querySelectorAll('.star.active');
+            return activeStars.length;
+        }
+
+        // Add click listeners to all stars
+        document.querySelectorAll('.star').forEach(star => {
+            star.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const starRating = this.parentElement;
+                const filename = starRating.dataset.filename;
+                const clickedRating = parseInt(this.dataset.rating);
+                const currentRating = getCurrentRating(starRating);
+
+                // Toggle: if clicking the current rating, clear it; otherwise set new rating
+                const newRating = (clickedRating === currentRating) ? 0 : clickedRating;
+
+                updateStarDisplay(starRating, newRating);
+                saveRatingState(filename, newRating);
+
+                // Reapply filters in case reviewed-only toggle is on
+                applyFilters();
+            });
+        });
+
+        // Load states on page load
+        loadRatingStates();
+
+        // Clipboard functionality for file names
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('clipboard-icon') || e.target.closest('.clipboard-icon')) {
+                const icon = e.target.classList.contains('clipboard-icon') ? e.target : e.target.closest('.clipboard-icon');
+                const filename = icon.dataset.filename;
+
+                // Copy to clipboard
+                navigator.clipboard.writeText(filename).then(function() {
+                    // Visual feedback - temporarily change opacity
+                    const originalOpacity = icon.style.opacity;
+                    icon.style.opacity = '1';
+                    icon.style.color = '#4CAF50';
+
+                    setTimeout(function() {
+                        icon.style.opacity = originalOpacity;
+                        icon.style.color = '';
+                    }, 200);
+                }).catch(function(err) {
+                    console.error('Failed to copy filename:', err);
+                });
+            }
+        });
+
+        // Copy reviewed papers functionality (grouped by star rating)
+        document.getElementById('copyReviewedBtn').addEventListener('click', function() {
+            // Collect all rated papers grouped by star level
+            const ratedPapers = { 3: [], 2: [], 1: [] };
+
+            document.querySelectorAll('.star-rating').forEach(function(starRating) {
+                const rating = getCurrentRating(starRating);
+                if (rating > 0) {
+                    const row = starRating.closest('tr');
+                    const filename = starRating.dataset.filename;
+                    const titleCell = row.querySelector('.paper-title');
+                    const title = titleCell ? titleCell.textContent.trim() : '';
+
+                    ratedPapers[rating].push({ filename, title });
+                }
+            });
+
+            // Check if any papers are rated
+            const totalRated = ratedPapers[3].length + ratedPapers[2].length + ratedPapers[1].length;
+            if (totalRated === 0) {
+                alert('No papers have been rated');
+                return;
+            }
+
+            // Build output grouped by star rating
+            let textOutput = '';
+
+            if (ratedPapers[3].length > 0) {
+                textOutput += '=== 3 STARS ===\n';
+                ratedPapers[3].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+                textOutput += '\n';
+            }
+
+            if (ratedPapers[2].length > 0) {
+                textOutput += '=== 2 STARS ===\n';
+                ratedPapers[2].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+                textOutput += '\n';
+            }
+
+            if (ratedPapers[1].length > 0) {
+                textOutput += '=== 1 STAR ===\n';
+                ratedPapers[1].forEach(paper => {
+                    textOutput += paper.filename + '\t' + paper.title + '\n';
+                });
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(textOutput.trim()).then(function() {
+                // Visual feedback
+                const btn = document.getElementById('copyReviewedBtn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied! (' + totalRated + ' papers)';
+                btn.style.backgroundColor = '#3d8b40';
+
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '';
+                }, 1500);
+            }).catch(function(err) {
+                console.error('Failed to copy rated papers:', err);
+                alert('Failed to copy to clipboard');
+            });
+        });
+    </script>
+</body>
+</html>
